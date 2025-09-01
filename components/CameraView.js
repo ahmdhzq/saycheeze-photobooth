@@ -14,7 +14,6 @@ export default function CameraView({ grid, onComplete }) {
     const [isCapturing, setIsCapturing] = useState(false);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
-    // Efek untuk menyalakan kamera (tidak berubah)
     useEffect(() => {
         const startCamera = async () => {
             try {
@@ -34,10 +33,8 @@ export default function CameraView({ grid, onComplete }) {
         return () => {
             if (stream) stream.getTracks().forEach(track => track.stop());
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Efek ini sekarang HANYA berjalan jika sesi pemotretan aktif (isCapturing === true)
     useEffect(() => {
         if (!isCapturing || currentPhotoIndex >= grid.photoCount) {
             return;
@@ -99,12 +96,12 @@ export default function CameraView({ grid, onComplete }) {
         <div className="min-h-screen bg-gray-50">
             {/* Header Section */}
             <div className="bg-white shadow-sm border-b border-gray-200">
-                <div className="max-w-6xl mx-auto px-6 py-6">
+                <div className="max-w-6xl mx-auto px-4 md:px-6 py-6">
                     <div className="text-center">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                             Siap Foto? Ayo Mulai!
                         </h1>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 text-sm md:text-base">
                             Layout: <span className="font-semibold text-pink-600">{grid.label}</span> • Total: <span className="font-semibold text-pink-600">{grid.photoCount} foto</span>
                         </p>
                     </div>
@@ -112,12 +109,12 @@ export default function CameraView({ grid, onComplete }) {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-6xl mx-auto px-6 py-8">
+            <div className="max-w-6xl mx-auto p-4 md:p-6">
                 
                 {/* Camera Section */}
-                <div className="mb-8">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                        <div className="relative aspect-video rounded-xl overflow-hidden bg-black shadow-sm">
+                <div className="mb-6 md:mb-8">
+                    <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200 p-3 md:p-6">
+                        <div className="relative aspect-video rounded-lg md:rounded-xl overflow-hidden bg-black shadow-sm">
                             <video 
                                 ref={videoRef} 
                                 autoPlay 
@@ -127,29 +124,26 @@ export default function CameraView({ grid, onComplete }) {
                             />
                             <canvas ref={canvasRef} style={{ display: 'none' }} />
                             
-                            {/* Countdown Overlay */}
                             {countdown !== null && countdown > 0 && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/70">
                                     <div className="text-center">
                                         <div className="text-8xl md:text-9xl font-bold text-white mb-4 animate-pulse">
                                             {countdown}
                                         </div>
-                                        <div className="text-2xl font-semibold text-pink-400">
+                                        <div className="text-xl md:text-2xl font-semibold text-pink-400">
                                             Siap-siap... Smile!
                                         </div>
                                     </div>
                                 </div>
                             )}
                             
-                            {/* Camera Status Indicator */}
-                            <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
+                            <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
                                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                                <span className="text-white text-sm font-medium">LIVE</span>
+                                <span className="text-white text-xs md:text-sm font-medium">LIVE</span>
                             </div>
 
-                            {/* Photo Counter */}
                             {isCapturing && (
-                                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm rounded-xl px-3 py-1.5">
+                                <div className="absolute top-2 right-2 md:top-4 md:right-4 bg-black/60 backdrop-blur-sm rounded-xl px-3 py-1.5">
                                     <span className="text-white font-semibold">
                                         {currentPhotoIndex + 1} / {grid.photoCount}
                                     </span>
@@ -161,42 +155,33 @@ export default function CameraView({ grid, onComplete }) {
 
                 {/* Control Panel */}
                 {!isCapturing ? (
-                    <div className="mb-8">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="mb-6 md:mb-8">
+                        <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
+                            <div className="flex flex-col items-center gap-4">
                                 
-                                {/* Timer Selection */}
-                                <div className="flex flex-col md:flex-row items-center gap-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
-                                            <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
-                                        <span className="text-lg font-semibold text-gray-900">Timer Countdown:</span>
-                                    </div>
-                                    
-                                    <div className="flex gap-3">
-                                        {[3, 5, 10].map(duration => (
-                                            <button 
-                                                key={duration} 
-                                                onClick={() => setTimerDuration(duration)}
-                                                className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
-                                                    timerDuration === duration 
-                                                        ? 'bg-pink-600 text-white shadow-sm' 
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
-                                            >
-                                                {duration}s
-                                            </button>
-                                        ))}
-                                    </div>
+                                <div className="text-center md:text-left">
+                                    <span className="text-lg font-semibold text-gray-900">Timer Countdown</span>
+                                </div>
+                                
+                                <div className="flex gap-3">
+                                    {[3, 5, 10].map(duration => (
+                                        <button 
+                                            key={duration} 
+                                            onClick={() => setTimerDuration(duration)}
+                                            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-base ${
+                                                timerDuration === duration 
+                                                    ? 'bg-pink-600 text-white shadow-sm' 
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                        >
+                                            {duration}s
+                                        </button>
+                                    ))}
                                 </div>
 
-                                {/* Start Button */}
                                 <button 
                                     onClick={handleStartSession} 
-                                    className="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 flex items-center gap-3"
+                                    className="w-full md:w-auto bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3 mt-4"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M19 10a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -208,19 +193,13 @@ export default function CameraView({ grid, onComplete }) {
                         </div>
                     </div>
                 ) : (
-                    <div className="mb-8">
-                        <div className="bg-pink-50 border border-pink-200 rounded-2xl p-6">
+                    <div className="mb-6 md:mb-8">
+                        <div className="bg-pink-50 border border-pink-200 rounded-xl md:rounded-2xl p-4 md:p-6">
                             <div className="text-center">
-                                <div className="flex items-center justify-center gap-3 mb-4">
-                                    <div className="w-3 h-3 bg-pink-500 rounded-full animate-pulse"></div>
-                                    <span className="text-xl font-bold text-gray-900">SESI FOTO AKTIF</span>
-                                    <div className="w-3 h-3 bg-pink-500 rounded-full animate-pulse"></div>
-                                </div>
-                                <p className="text-lg text-gray-700 mb-4">
+                                <p className="text-base md:text-lg text-gray-700 mb-2">
                                     Mengambil foto <span className="font-bold text-pink-600">{currentPhotoIndex + 1}</span> dari <span className="font-bold text-pink-600">{grid.photoCount}</span>... Siapkan pose terbaikmu!
                                 </p>
                                 
-                                {/* Progress Bar */}
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div 
                                         className="bg-pink-500 h-2 rounded-full transition-all duration-300"
@@ -233,20 +212,13 @@ export default function CameraView({ grid, onComplete }) {
                 )}
                 
                 {/* Photo Gallery Preview */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
-                            <svg className="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900">Preview Galeri Foto</h3>
-                    </div>
+                <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4">Preview Galeri Foto</h3>
                     
-                    <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
+                    <div className="grid gap-2 md:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                         {images.map((img, index) => (
                             <div key={index} 
-                                 className={`group relative aspect-video bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden border-2 transition-all duration-300 ${
+                                 className={`group relative aspect-video bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center overflow-hidden border-2 transition-all duration-300 ${
                                      img ? 'border-green-400 bg-green-50' : 
                                      index === currentPhotoIndex && isCapturing ? 'border-pink-400 bg-pink-50 animate-pulse' :
                                      'border-gray-200'
@@ -254,26 +226,18 @@ export default function CameraView({ grid, onComplete }) {
                                 {img ? (
                                     <>
                                         <img src={img} alt={`Capture ${index + 1}`} className="w-full h-full object-cover" />
-                                        <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
-                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <div className="absolute top-1.5 right-1.5 md:top-2 md:right-2 bg-green-500 text-white rounded-full p-1">
+                                            <svg className="w-2 h-2 md:w-3 md:h-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                             </svg>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="text-center">
-                                        <div className={`w-12 h-12 mx-auto mb-3 rounded-full border-2 border-dashed flex items-center justify-center ${
-                                            index === currentPhotoIndex && isCapturing ? 'border-pink-400 text-pink-400' : 'border-gray-400 text-gray-400'
-                                        }`}>
-                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                        </div>
-                                        <span className={`text-sm font-medium ${
+                                    <div className="text-center p-2">
+                                        <span className={`text-xs md:text-sm font-medium ${
                                             index === currentPhotoIndex && isCapturing ? 'text-pink-600' : 'text-gray-500'
                                         }`}>
-                                            {index === currentPhotoIndex && isCapturing ? 'Foto Berikutnya' : `Foto ${index + 1}`}
+                                            {index === currentPhotoIndex && isCapturing ? 'Berikutnya' : `Foto ${index + 1}`}
                                         </span>
                                     </div>
                                 )}
@@ -281,7 +245,6 @@ export default function CameraView({ grid, onComplete }) {
                         ))}
                     </div>
                 </div>
-
             </div>
         </div>
     );

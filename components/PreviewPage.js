@@ -1,9 +1,7 @@
-// components/PreviewPage.js
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
 
-// Konfigurasi Tema dan Layout (tidak berubah)
 const themeConfig = {
     '2x2': [
         { id: 'theme-1', name: 'Theme 1', path: '/assets/theme/2x2/theme-1.svg' },
@@ -24,6 +22,7 @@ const themeConfig = {
         { id: 'theme-4', name: 'Theme 4', path: '/assets/theme/3x2/theme-4.svg' },
     ]
 };
+
 const frameLayouts = {
   '2x2': {
     canvasSize: { width: 1000, height: 1100 },
@@ -65,7 +64,6 @@ export default function PreviewPage({ images, grid }) {
     const canvasRef = useRef(null);
     const [selectedTheme, setSelectedTheme] = useState(themeConfig[grid.id][0]);
     const [showTimestamp, setShowTimestamp] = useState(true);
-    const [showLogo, setShowLogo] = useState(true); 
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -99,17 +97,34 @@ export default function PreviewPage({ images, grid }) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
-                layout.slots.forEach((slot, index) => {
-                    if (userPhotos[index]) {
+                const contentAreaWidth = canvas.width * 0.90;
+                const contentAreaHeight = canvas.height * 0.72;
+                const [rows, cols] = grid.id.split('x').map(Number);
+                const padding = contentAreaWidth * 0.05 / (cols > 1 ? cols - 1 : 1);
+                const photoWidth = (contentAreaWidth - (padding * (cols - 1))) / cols;
+                const photoHeight = photoWidth * (4 / 3);
+                const totalGridHeight = (rows * photoHeight) + (padding * (rows - 1));
+                const startX = (canvas.width - contentAreaWidth) / 2;
+                const startY = (canvas.height - totalGridHeight) / 2.5;
+
+                userPhotos.forEach((photo, index) => {
+                    if (index < layout.slots.length) {
+                        const slot = layout.slots[index];
                         ctx.save();
                         ctx.beginPath();
-                        ctx.roundRect(slot.x, slot.y, slot.width, slot.height, [slot.borderRadius]);
+                        
+                        const x = slot.x;
+                        const y = slot.y;
+                        const width = slot.width;
+                        const height = slot.height;
+
+                        ctx.roundRect(x, y, width, height, [slot.borderRadius]);
                         ctx.clip();
                         
-                        const sWidth = userPhotos[index].naturalWidth;
-                        const sHeight = userPhotos[index].naturalHeight;
-                        const dWidth = slot.width;
-                        const dHeight = slot.height;
+                        const sWidth = photo.naturalWidth;
+                        const sHeight = photo.naturalHeight;
+                        const dWidth = width;
+                        const dHeight = height;
                         const sRatio = sWidth / sHeight;
                         const dRatio = dWidth / dHeight;
                         let sx = 0, sy = 0, cropWidth = sWidth, cropHeight = sHeight;
@@ -121,12 +136,12 @@ export default function PreviewPage({ images, grid }) {
                             cropHeight = sWidth / dRatio;
                             sy = (sHeight - cropHeight) / 2;
                         }
-                        ctx.drawImage(userPhotos[index], sx, sy, cropWidth, cropHeight, slot.x, slot.y, dWidth, dHeight);
+                        ctx.drawImage(photo, sx, sy, cropWidth, cropHeight, x, y, dWidth, dHeight);
                         ctx.restore();
                     }
                 });
                 
-                if (showLogo && layout.logo) {
+                if (layout.logo) {
                     ctx.drawImage(logoImage, layout.logo.x, layout.logo.y, layout.logo.width, layout.logo.height);
                 }
                 
@@ -139,17 +154,15 @@ export default function PreviewPage({ images, grid }) {
                     ctx.fillText(dateStr, layout.timestamp.x, layout.timestamp.y);
                 }
             })
-            // BARU: Penanganan error agar kanvas tidak kosong jika ada masalah
             .catch(error => {
                 console.error("Error loading images for canvas:", error);
-                // Opsional: Tampilkan pesan error di kanvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = 'red';
                 ctx.font = '24px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('Gagal memuat gambar.', canvas.width / 2, canvas.height / 2);
+                ctx.fillText('Gagal memuat aset gambar.', canvas.width / 2, canvas.height / 2);
             });
-    }, [images, grid, selectedTheme, showTimestamp, showLogo]);
+    }, [images, grid, selectedTheme, showTimestamp]);
 
     const handleDownload = () => {
         const canvas = canvasRef.current;
@@ -164,7 +177,7 @@ export default function PreviewPage({ images, grid }) {
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="bg-white shadow-sm border-b border-gray-200">
-                 <div className="max-w-7xl mx-auto px-6 py-8 text-center">
+                <div className="max-w-7xl mx-auto px-6 py-8 text-center">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Foto sudah siap!</h1>
                     <p className="text-gray-600 max-w-md mx-auto">Pilih tema frame favoritmu dan unduh sekarang.</p>
                 </div>
@@ -178,7 +191,6 @@ export default function PreviewPage({ images, grid }) {
                     </div>
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
-                            {/* DIUBAH: Pilihan Tema dengan Pratinjau Gambar */}
                             <div className="mb-8">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Pilih Tema</h3>
                                 <div className="space-y-3">
@@ -201,21 +213,15 @@ export default function PreviewPage({ images, grid }) {
                                     ))}
                                 </div>
                             </div>
-                            
                             <div className="mb-8">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Pengaturan</h3>
                                 <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-                                    <label className="flex items-center justify-between cursor-pointer">
-                                        <span className="font-medium text-gray-900">Tampilkan Logo</span>
-                                        <input type="checkbox" checked={showLogo} onChange={() => setShowLogo(!showLogo)} className="toggle toggle-primary" />
-                                    </label>
                                     <label className="flex items-center justify-between cursor-pointer">
                                         <span className="font-medium text-gray-900">Tampilkan Tanggal</span>
                                         <input type="checkbox" checked={showTimestamp} onChange={() => setShowTimestamp(!showTimestamp)} className="toggle toggle-primary" />
                                     </label>
                                 </div>
                             </div>
-                            
                             <div>
                                 <button onClick={handleDownload} className="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-4 rounded-lg">
                                     Download Foto
