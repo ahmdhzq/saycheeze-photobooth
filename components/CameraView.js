@@ -1,11 +1,10 @@
-// components/CameraView.js
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Camera, Upload, Check } from 'lucide-react';
 
 // ===================================
-// Bagian untuk MODE KAMERA OTOMATIS (YANG DIROMBAK)
+// Automatic Camera Session Mode
 // ===================================
 function CameraSession({ grid, onComplete }) {
     const videoRef = useRef(null);
@@ -16,7 +15,6 @@ function CameraSession({ grid, onComplete }) {
     const [countdown, setCountdown] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-    // BARU: State untuk efek flash
     const [flashEffect, setFlashEffect] = useState(false);
 
     useEffect(() => {
@@ -46,9 +44,8 @@ function CameraSession({ grid, onComplete }) {
     }, [isCapturing, currentPhotoIndex, grid.photoCount, timerDuration]);
 
     const takePicture = () => {
-        // BARU: Memicu efek flash
         setFlashEffect(true);
-        setTimeout(() => setFlashEffect(false), 200); // Matikan flash setelah 200ms
+        setTimeout(() => setFlashEffect(false), 200);
 
         if (videoRef.current && canvasRef.current) {
             const video = videoRef.current;
@@ -81,13 +78,11 @@ function CameraSession({ grid, onComplete }) {
     return (
         <div className="w-full mt-14 grid lg:grid-cols-3 gap-8 items-start">
             
-            {/* Kolom Kiri: Kamera & Kontrol */}
             <div className="lg:col-span-2 flex flex-col items-center gap-6">
                 <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
                     <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
                     <canvas ref={canvasRef} style={{ display: 'none' }} />
                     
-                    {/* BARU: Div untuk efek flash */}
                     <div className={`absolute inset-0 bg-white transition-opacity duration-100 ${flashEffect ? 'opacity-80' : 'opacity-0'}`}></div>
 
                     {countdown !== null && countdown > 0 && (
@@ -105,16 +100,15 @@ function CameraSession({ grid, onComplete }) {
                                 <button key={duration} onClick={() => setTimerDuration(duration)} className={`px-4 py-2 rounded-lg font-semibold ${timerDuration === duration ? 'bg-pink-500 text-white' : 'bg-gray-100'}`}>{duration}s</button>
                             ))}
                         </div>
-                        <button onClick={handleStartSession} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-lg">Mulai Sesi Kamera</button>
+                        <button onClick={handleStartSession} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-lg">Start Camera Session</button>
                     </div>
                 ) : (
-                    <p className="text-xl h-24 flex items-center animate-pulse text-gray-700">Mengambil foto {currentPhotoIndex + 1} dari {grid.photoCount}...</p>
+                    <p className="text-xl h-24 flex items-center animate-pulse text-gray-700">Taking photo {currentPhotoIndex + 1} of {grid.photoCount}...</p>
                 )}
             </div>
 
-            {/* BARU: Kolom Kanan: Pratinjau Hasil Jepretan */}
             <div className="lg:col-span-1 bg-white rounded-2xl shadow-lg p-6 w-full">
-                <h3 className="text-xl font-bold text-center mb-4">Preview Hasil</h3>
+                <h3 className="text-xl font-bold text-center mb-4">Photo Results</h3>
                 <div className="space-y-4">
                     {images.map((img, index) => (
                         <div key={index} className={`relative aspect-video rounded-lg flex items-center justify-center transition-all duration-300
@@ -124,10 +118,9 @@ function CameraSession({ grid, onComplete }) {
                             {img ? (
                                 <img src={img} alt={`Capture ${index + 1}`} className="w-full h-full object-cover rounded-md" />
                             ) : (
-                                <span className="text-gray-400">Slot Foto #{index + 1}</span>
+                                <span className="text-gray-400">Photo Slot #{index + 1}</span>
                             )}
                             
-                            {/* Indikator status */}
                             <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold
                                 ${ img ? 'bg-green-500' : 'bg-gray-400' }
                             `}>
@@ -142,7 +135,7 @@ function CameraSession({ grid, onComplete }) {
 }
 
 // ===================================
-// Bagian untuk MODE UPLOAD MANUAL (Tidak Berubah)
+// Manual Upload Session Mode
 // ===================================
 function UploadSession({ grid, onComplete }) {
     const [images, setImages] = useState(Array(grid.photoCount).fill(null));
@@ -173,7 +166,7 @@ function UploadSession({ grid, onComplete }) {
     return (
         <div className="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
              <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/png, image/jpeg" onChange={handleFileChange}/>
-             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Upload Fotomu ({grid.label})</h2>
+             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Upload Your Photos ({grid.label})</h2>
              <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                 {images.map((img, index) => (
                     <div key={index} className="aspect-square">
@@ -195,7 +188,7 @@ function UploadSession({ grid, onComplete }) {
             </div>
              <div className="mt-8 text-center">
                 <button onClick={() => onComplete(images)} disabled={!isComplete} className="bg-pink-500 text-white font-bold py-4 px-10 rounded-xl disabled:bg-gray-300">
-                    {isComplete ? 'Lanjut ke Pratinjau' : 'Isi Semua Slot'}
+                    {isComplete ? 'Continue to Preview' : 'Fill All Slots'}
                 </button>
             </div>
         </div>
@@ -203,7 +196,7 @@ function UploadSession({ grid, onComplete }) {
 }
 
 // ===================================
-// Komponen Utama CameraView (Manajer)
+// Main CameraView Component (Manager)
 // ===================================
 export default function CameraView({ grid, onComplete, mode }) {
     if (mode === 'camera') {
@@ -214,5 +207,5 @@ export default function CameraView({ grid, onComplete, mode }) {
         return <UploadSession grid={grid} onComplete={onComplete} />;
     }
 
-    return <div className="text-center">Memuat mode...</div>;
-}
+    return <div className="text-center">Loading mode...</div>;
+}   

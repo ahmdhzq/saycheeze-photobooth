@@ -11,7 +11,6 @@ export default function GridSelector({ onGridSelect }) {
         <div className="min-h-screen mt-8 flex items-center justify-center px-6">
             <div className="w-full max-w-6xl">
                 
-                {/* Hero Section */}
                 <div className="text-center mb-12">
                     <div className="inline-flex items-center justify-center w-20 h-20 bg-pink-100 rounded-full mb-6">
                         <svg className="w-10 h-10 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,23 +22,22 @@ export default function GridSelector({ onGridSelect }) {
                         Say Cheeze Photobooth
                     </h1>
                     <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
-                        Pilih layout favoritmu dan mulai membuat kenangan!
+                        Choose your favorite layout and start making memories!
                     </p>
                     <div className="bg-white rounded-full px-6 py-3 inline-block shadow-sm border border-gray-200">
                         <p className="text-pink-600 font-medium">
-                            Siap untuk sesi foto yang tak terlupakan? Mari kita mulai!
+                            Ready for an unforgettable photo session? Let's get started!
                         </p>
                     </div>
                 </div>
 
-                {/* Grid Selection Cards */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 md:p-12">
                     <div className="text-center mb-10">
                         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                            Pilih Layout Polaroid Anda
+                            Choose Your Polaroid Layout
                         </h2>
                         <p className="text-lg text-gray-600">
-                            Setiap layout punya keunikan tersendiri. Mana yang paling cocok dengan gayamu?
+                            Each layout has its own unique qualities. Which one best suits your style?
                         </p>
                     </div>
 
@@ -50,7 +48,6 @@ export default function GridSelector({ onGridSelect }) {
                                     onClick={() => onGridSelect(grid)}
                                     className="group w-full bg-white border-2 border-gray-200 hover:border-pink-300 rounded-xl p-6 transition-all duration-300 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500"
                                 >
-                                    {/* Card Header */}
                                     <div className="mb-6">
                                         <div className="w-12 h-12 bg-pink-100 group-hover:bg-pink-200 rounded-xl flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
                                             <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,11 +56,10 @@ export default function GridSelector({ onGridSelect }) {
                                         </div>
                                         <h3 className="text-2xl font-bold text-gray-900 mb-2">{grid.label}</h3>
                                         <div className="bg-pink-50 rounded-full px-3 py-1 inline-block">
-                                            <span className="text-pink-600 font-semibold text-sm">{grid.photoCount} Foto</span>
+                                            <span className="text-pink-600 font-semibold text-sm">{grid.photoCount} Photos</span>
                                         </div>
                                     </div>
 
-                                    {/* Visual Grid Representation */}
                                     <div className="mb-6">
                                         {grid.id === '3x1' && (
                                             <div className="flex gap-1.5 justify-center">
@@ -88,17 +84,15 @@ export default function GridSelector({ onGridSelect }) {
                                         )}
                                     </div>
 
-                                    {/* Description */}
                                     <div className="text-gray-600 text-sm leading-relaxed mb-4">
-                                        {grid.id === '3x1' && "Perfect untuk cerita berurutan atau progress shots"}
-                                        {grid.id === '2x2' && "Layout klasik yang seimbang dan simetris"}
-                                        {grid.id === '3x2' && "Paling banyak foto untuk koleksi momen lengkap"}
+                                        {grid.id === '3x1' && "Perfect for sequential stories or progress shots."}
+                                        {grid.id === '2x2' && "A classic layout that's balanced and symmetrical."}
+                                        {grid.id === '3x2' && "The most photos for a complete collection of moments."}
                                     </div>
 
-                                    {/* Hover Arrow */}
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <div className="flex items-center justify-center gap-2 text-pink-600">
-                                            <span className="font-semibold text-sm">Pilih Layout Ini</span>
+                                            <span className="font-semibold text-sm">Select This Layout</span>
                                             <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                             </svg>
@@ -106,33 +100,30 @@ export default function GridSelector({ onGridSelect }) {
                                     </div>
                                 </button>
 
-                                {/* Popular Badge for middle option */}
                                 {index === 1 && (
                                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-pink-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow-sm">
-                                        Populer
+                                        Popular
                                     </div>
                                 )}
                             </div>
                         ))}
                     </div>
 
-                    {/* Bottom Tips */}
                     <div className="text-center mt-10 pt-8 border-t border-gray-200">
                         <p className="text-gray-600 mb-4">
-                            <span className="font-semibold">Tips:</span> Pilih layout berdasarkan jumlah orang dan jenis foto yang ingin kamu buat
+                            <span className="font-semibold">Tip:</span> Choose a layout based on the number of people and the type of photos you want to create.
                         </p>
                         <div className="flex flex-wrap justify-center gap-3 text-sm">
-                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Solo atau duo → 3x1</span>
-                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Keluarga kecil → 2x2</span>
-                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Grup besar → 3x2</span>
+                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Solo or Duo → 3x1</span>
+                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Small Family → 2x2</span>
+                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">Large Group → 3x2</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Footer */}
                 <div className="text-center mt-8">
                     <p className="text-gray-500">
-                        Semua layout menghasilkan foto berkualitas tinggi yang siap diunduh dan dibagikan!
+                        All layouts produce high-quality photos ready to be downloaded and shared!
                     </p>
                 </div>
 

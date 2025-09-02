@@ -2,6 +2,18 @@
 
 import { useRef, useEffect, useState } from 'react';
 
+const stickerConfig = {
+    '2x2': [
+        { id: 'nailong-2x2', name: 'Nailong Set', path: '/assets/stikers/2x2/nailong.svg' },
+    ],
+    '3x1': [
+        { id: 'nailong-3x1', name: 'Nailong Set', path: '/assets/stikers/3x1/nailong.svg' },
+    ],
+    '3x2': [
+        { id: 'nailong-3x2', name: 'Nailong Set', path: '/assets/stikers/3x2/nailong.svg' },
+    ]
+};
+
 const themeConfig = {
     '2x2': [
         { id: 'theme-1', name: 'Theme 1', path: '/assets/theme/2x2/theme-1.svg' },
@@ -22,7 +34,6 @@ const themeConfig = {
         { id: 'theme-4', name: 'Theme 4', path: '/assets/theme/3x2/theme-4.svg' },
     ]
 };
-
 const frameLayouts = {
     '2x2': {
         canvasSize: { width: 1000, height: 1100 },
@@ -39,8 +50,8 @@ const frameLayouts = {
         canvasSize: { width: 1000, height: 2000 },
         slots: [
             { x: 85, y: 70, width: 830, height: 540, borderRadius: 30 },
-            { x: 85, y: 630, width: 830, height: 540, borderRadius: 30 },
-            { x: 85, y: 1190, width: 830, height: 540, borderRadius: 30 },
+            { x: 85, y: 632, width: 830, height: 540, borderRadius: 30 },
+            { x: 85, y: 1205, width: 830, height: 547, borderRadius: 30 },
         ],
         logo: { x: 390, y: 1760, width: 250, height: 120 },
         timestamp: { x: 510, y: 1910, fontSize: 25 },
@@ -53,17 +64,19 @@ const frameLayouts = {
             { x: 40, y: 465, width: 450, height: 400, borderRadius: 25 },
             { x: 510, y: 465, width: 450, height: 400, borderRadius: 25 },
             { x: 40, y: 880, width: 450, height: 400, borderRadius: 25 },
-            { x: 510, y: 880, width: 450, height: 400, borderRadius: 25 },
+            { x: 510, y: 878, width: 450, height: 400, borderRadius: 25 },
         ],
         logo: { x: 360, y: 1280, width: 250, height: 120 },
         timestamp: { x: 482, y: 1410, fontSize: 25 },
     }
 };
 
+
 export default function PreviewPage({ images, grid }) {
     const canvasRef = useRef(null);
     const [selectedTheme, setSelectedTheme] = useState(themeConfig[grid.id][0]);
     const [showTimestamp, setShowTimestamp] = useState(true);
+    const [selectedSticker, setSelectedSticker] = useState(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -92,9 +105,24 @@ export default function PreviewPage({ images, grid }) {
             ...images.map(src => imageLoader(src))
         ];
 
+        if (selectedSticker) {
+            sourcesToLoad.push(imageLoader(selectedSticker.path));
+        }
+
         Promise.all(sourcesToLoad)
-            .then(([backgroundImage, logoImage, ...userPhotos]) => {
+            .then((loadedImages) => {
+                const [backgroundImage, logoImage, ...userPhotos] = loadedImages;
+                const stickerImage = selectedSticker ? loadedImages[loadedImages.length - 1] : null;
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const scale = 1;
+                const newWidth = canvas.width * scale;
+                const newHeight = canvas.height * scale;
+                const offsetX = (canvas.width - newWidth) / 2;
+                const offsetY = (canvas.height - newHeight) / 2;
+
+                ctx.translate(offsetX, offsetY);
+                ctx.scale(scale, scale);
                 ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
                 userPhotos.forEach((photo, index) => {
@@ -104,13 +132,10 @@ export default function PreviewPage({ images, grid }) {
                         ctx.beginPath();
                         ctx.roundRect(slot.x, slot.y, slot.width, slot.height, [slot.borderRadius]);
                         ctx.clip();
-                        
-                        const sWidth = photo.naturalWidth;
-                        const sHeight = photo.naturalHeight;
-                        const dWidth = slot.width;
-                        const dHeight = slot.height;
-                        const sRatio = sWidth / sHeight;
-                        const dRatio = dWidth / dHeight;
+
+                        const sWidth = photo.naturalWidth, sHeight = photo.naturalHeight;
+                        const dWidth = slot.width, dHeight = slot.height;
+                        const sRatio = sWidth / sHeight, dRatio = dWidth / dHeight;
                         let sx = 0, sy = 0, cropWidth = sWidth, cropHeight = sHeight;
 
                         if (sRatio > dRatio) {
@@ -124,33 +149,30 @@ export default function PreviewPage({ images, grid }) {
                         ctx.restore();
                     }
                 });
-                
+
                 if (layout.logo) {
                     ctx.drawImage(logoImage, layout.logo.x, layout.logo.y, layout.logo.width, layout.logo.height);
                 }
-                
+
+                if (stickerImage) {
+                    ctx.drawImage(stickerImage, 0, 0, canvas.width, canvas.height);
+                }
+
                 if (showTimestamp && layout.timestamp) {
                     const now = new Date();
                     const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
                     ctx.font = `500 ${layout.timestamp.fontSize}px Poppins, sans-serif`;
                     ctx.textAlign = 'center';
-                    ctx.strokeStyle = '#374151'; 
-                    ctx.lineWidth = 2;       
-                    ctx.lineJoin = 'round'; 
+                    ctx.strokeStyle = '#374151';
+                    ctx.lineWidth = 2;
+                    ctx.lineJoin = 'round';
                     ctx.strokeText(dateStr, layout.timestamp.x, layout.timestamp.y);
-                    ctx.fillStyle = '#FFFFFF';  
+                    ctx.fillStyle = '#FFFFFF';
                     ctx.fillText(dateStr, layout.timestamp.x, layout.timestamp.y);
                 }
             })
-            .catch(error => {
-                console.error("Error loading images for canvas:", error);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = 'red';
-                ctx.font = '24px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Gagal memuat aset gambar.', canvas.width / 2, canvas.height / 2);
-            });
-    }, [images, grid, selectedTheme, showTimestamp]);
+            .catch(error => { console.error("Error loading images for canvas:", error); });
+    }, [images, grid, selectedTheme, showTimestamp, selectedSticker]);
 
     const handleDownload = () => {
         const canvas = canvasRef.current;
@@ -161,32 +183,36 @@ export default function PreviewPage({ images, grid }) {
     };
 
     const availableThemes = themeConfig[grid.id];
+    const availableStickers = stickerConfig[grid.id] || [];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="bg-white shadow-sm border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-6 py-8 text-center">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Foto sudah siap!</h1>
-                    <p className="text-gray-600 max-w-md mx-auto">Pilih tema frame favoritmu dan unduh sekarang.</p>
+        <div className="min-h-screen ">
+            <div className="bg-white shadow-sm rounded-xl">
+                <div className="max-w-4xl mx-auto px-6 py-6 text-center">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Your Photos are Ready!</h1>
+                    <p className="text-gray-600">Choose your favorite frame and download now.</p>
                 </div>
             </div>
-            <div className="max-w-7xl mx-auto px-6 py-8">
-                <div className="grid lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <canvas ref={canvasRef} className="w-full h-auto rounded-lg shadow-sm border border-gray-100"/>
+            <div className="max-w-6xl mx-auto py-8">
+                <div className="grid lg:grid-cols-2 gap-8 items-start">
+                    {/* Kolom Kiri: Canvas photo */}
+                    <div className="flex justify-center items-center flex-col lg:col-span-1 space-y-4 border p-6 rounded-xl shadow-sm border-gray-200">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Photo</h3>
+                        <div className="shadow-xl rounded-xl">
+                            <canvas ref={canvasRef} className="w-full h-auto rounded-lg" />
                         </div>
                     </div>
+                    {/* Kolom Kanan: Panel Kontrol */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
-                            <div className="mb-8">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Pilih Tema</h3>
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-28">
+                            <div className="mb-6">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Theme</h3>
                                 <div className="space-y-3">
                                     {availableThemes.map(theme => (
                                         <button
                                             key={theme.id}
                                             onClick={() => setSelectedTheme(theme)}
-                                            className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-4 border-2 ${selectedTheme.id === theme.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
+                                            className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${selectedTheme.id === theme.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
                                         >
                                             <img src={theme.path} alt={theme.name} className="w-12 h-12 object-cover rounded-md border border-gray-200" />
                                             <div className="text-left flex-grow">
@@ -201,18 +227,43 @@ export default function PreviewPage({ images, grid }) {
                                     ))}
                                 </div>
                             </div>
-                            <div className="mb-8">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Pengaturan</h3>
-                                <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                            <div className="mb-6">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Sticker</h3>
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={() => setSelectedSticker(null)}
+                                        className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${!selectedSticker ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
+                                    >
+                                        <div className="text-left flex-grow">
+                                            <p className="font-medium text-gray-900">No Sticker</p>
+                                        </div>
+                                    </button>
+                                    {availableStickers.map(sticker => (
+                                        <button
+                                            key={sticker.id}
+                                            onClick={() => setSelectedSticker(sticker)}
+                                            className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${selectedSticker?.id === sticker.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
+                                        >
+                                            <img src={sticker.path} alt={sticker.name} className="w-12 h-12 object-contain rounded-md" />
+                                            <div className="text-left flex-grow">
+                                                <p className="font-medium text-gray-900">{sticker.name}</p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="mb-6">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Settings</h3>
+                                <div className="bg-gray-50 rounded-lg p-4">
                                     <label className="flex items-center justify-between cursor-pointer">
-                                        <span className="font-medium text-gray-900">Tampilkan Tanggal</span>
+                                        <span className="font-medium text-gray-900">Show Timestamp</span>
                                         <input type="checkbox" checked={showTimestamp} onChange={() => setShowTimestamp(!showTimestamp)} className="toggle toggle-primary" />
                                     </label>
                                 </div>
                             </div>
                             <div>
                                 <button onClick={handleDownload} className="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-4 rounded-lg">
-                                    Download Foto
+                                    Download Photo
                                 </button>
                             </div>
                         </div>
