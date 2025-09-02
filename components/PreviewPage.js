@@ -4,16 +4,19 @@ import { useRef, useEffect, useState } from 'react';
 
 const stickerConfig = {
     '2x2': [
-        { id: 'theme-1', name: 'theme-1', path: '/assets/stikers/2x2/stiker-1.svg' },
-        { id: 'theme-2', name: 'theme-2', path: '/assets/stikers/2x2/stiker-2.svg' },
+        { id: 'stiker-1', name: 'stiker-1', path: '/assets/stikers/2x2/stiker-1.svg' },
+        { id: 'stiker-2', name: 'stiker-2', path: '/assets/stikers/2x2/stiker-2.svg' },
+        { id: 'stiker-3', name: 'stiker-3', path: '/assets/stikers/2x2/stiker-3.svg' },
     ],
     '3x1': [
-        { id: 'theme-1', name: 'theme-1', path: '/assets/stikers/3x1/stiker-1.svg' },
-        { id: 'theme-2', name: 'theme-2', path: '/assets/stikers/3x1/stiker-2.svg' },
+        { id: 'stiker-1', name: 'stiker-1', path: '/assets/stikers/3x1/stiker-1.svg' },
+        { id: 'stiker-2', name: 'stiker-2', path: '/assets/stikers/3x1/stiker-2.svg' },
+        { id: 'stiker-3', name: 'stiker-3', path: '/assets/stikers/3x1/stiker-3.svg' },
     ],
     '3x2': [
-        { id: 'theme-1', name: 'theme-1', path: '/assets/stikers/3x2/stiker-1.svg' },
-        { id: 'theme-2', name: 'theme-2', path: '/assets/stikers/3x2/stiker-2.svg' },,
+        { id: 'stiker-1', name: 'stiker-1', path: '/assets/stikers/3x2/stiker-1.svg' },
+        { id: 'stiker-2', name: 'stiker-2', path: '/assets/stikers/3x2/stiker-2.svg' },
+        { id: 'stiker-3', name: 'stiker-3', path: '/assets/stikers/3x2/stiker-3.svg' },
     ]
 };
 
@@ -44,10 +47,10 @@ const frameLayouts = {
     '2x2': {
         canvasSize: { width: 1000, height: 1100 },
         slots: [
-            { x: 50, y: 70, width: 445, height: 420, borderRadius: 20 },
-            { x: 505, y: 70, width: 445, height: 420, borderRadius: 20 },
-            { x: 50, y: 500, width: 445, height: 420, borderRadius: 20 },
-            { x: 505, y: 500, width: 445, height: 420, borderRadius: 20 },
+            { x: 50, y: 75, width: 445, height: 420, borderRadius: 20 },
+            { x: 505, y: 75, width: 445, height: 420, borderRadius: 20 },
+            { x: 50, y: 507, width: 445, height: 420, borderRadius: 20 },
+            { x: 505, y: 507, width: 445, height: 420, borderRadius: 20 },
         ],
         logo: { x: 380, y: 930, width: 250, height: 120 },
         timestamp: { x: 500, y: 1062, fontSize: 25 },
