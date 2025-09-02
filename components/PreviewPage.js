@@ -4,13 +4,16 @@ import { useRef, useEffect, useState } from 'react';
 
 const stickerConfig = {
     '2x2': [
-        { id: 'nailong-2x2', name: 'Nailong Set', path: '/assets/stikers/2x2/nailong.svg' },
+        { id: 'theme-1', name: 'theme-1', path: '/assets/stikers/2x2/stiker-1.svg' },
+        { id: 'theme-2', name: 'theme-2', path: '/assets/stikers/2x2/stiker-2.svg' },
     ],
     '3x1': [
-        { id: 'nailong-3x1', name: 'Nailong Set', path: '/assets/stikers/3x1/nailong.svg' },
+        { id: 'theme-1', name: 'theme-1', path: '/assets/stikers/3x1/stiker-1.svg' },
+        { id: 'theme-2', name: 'theme-2', path: '/assets/stikers/3x1/stiker-2.svg' },
     ],
     '3x2': [
-        { id: 'nailong-3x2', name: 'Nailong Set', path: '/assets/stikers/3x2/nailong.svg' },
+        { id: 'theme-1', name: 'theme-1', path: '/assets/stikers/3x2/stiker-1.svg' },
+        { id: 'theme-2', name: 'theme-2', path: '/assets/stikers/3x2/stiker-2.svg' },,
     ]
 };
 
@@ -20,18 +23,21 @@ const themeConfig = {
         { id: 'theme-2', name: 'Theme 2', path: '/assets/theme/2x2/theme-2.svg' },
         { id: 'theme-3', name: 'Theme 3', path: '/assets/theme/2x2/theme-3.svg' },
         { id: 'theme-4', name: 'Theme 4', path: '/assets/theme/2x2/theme-4.svg' },
+        { id: 'theme-5', name: 'Theme 5', path: '/assets/theme/2x2/theme-5.svg' },
     ],
     '3x1': [
         { id: 'theme-1', name: 'Theme 1', path: '/assets/theme/3x1/theme-1.svg' },
         { id: 'theme-2', name: 'Theme 2', path: '/assets/theme/3x1/theme-2.svg' },
         { id: 'theme-3', name: 'Theme 3', path: '/assets/theme/3x1/theme-3.svg' },
         { id: 'theme-4', name: 'Theme 4', path: '/assets/theme/3x1/theme-4.svg' },
+        { id: 'theme-5', name: 'Theme 5', path: '/assets/theme/3x1/theme-5.svg' },
     ],
     '3x2': [
         { id: 'theme-1', name: 'Theme 1', path: '/assets/theme/3x2/theme-1.svg' },
         { id: 'theme-2', name: 'Theme 2', path: '/assets/theme/3x2/theme-2.svg' },
         { id: 'theme-3', name: 'Theme 3', path: '/assets/theme/3x2/theme-3.svg' },
         { id: 'theme-4', name: 'Theme 4', path: '/assets/theme/3x2/theme-4.svg' },
+        { id: 'theme-5', name: 'Theme 5', path: '/assets/theme/3x2/theme-5.svg' },
     ]
 };
 const frameLayouts = {
