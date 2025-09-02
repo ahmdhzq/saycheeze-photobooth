@@ -24,40 +24,40 @@ const themeConfig = {
 };
 
 const frameLayouts = {
-  '2x2': {
-    canvasSize: { width: 1000, height: 1100 },
-    slots: [
-      { x: 100, y: 80, width: 380, height: 400, borderRadius: 20 },
-      { x: 520, y: 80, width: 380, height: 400, borderRadius: 20 },
-      { x: 100, y: 520, width: 380, height: 400, borderRadius: 20 },
-      { x: 520, y: 520, width: 380, height: 400, borderRadius: 20 },
-    ],
-    logo: { x: 425, y: 950, width: 150, height: 35 },
-    timestamp: { x: 500, y: 1010, fontSize: 28 },
-  },
-  '3x1': {
-    canvasSize: { width: 1000, height: 2000 },
-    slots: [
-      { x: 130, y: 120, width: 740, height: 480, borderRadius: 30 },
-      { x: 130, y: 650, width: 740, height: 480, borderRadius: 30 },
-      { x: 130, y: 1180, width: 740, height: 480, borderRadius: 30 },
-    ],
-    logo: { x: 425, y: 1780, width: 150, height: 35 },
-    timestamp: { x: 500, y: 1840, fontSize: 30 },
-  },
-  '3x2': {
-    canvasSize: { width: 1000, height: 1455 },
-    slots: [
-      { x: 90, y: 75, width: 400, height: 360, borderRadius: 25 },
-      { x: 510, y: 75, width: 400, height: 360, borderRadius: 25 },
-      { x: 90, y: 465, width: 400, height: 360, borderRadius: 25 },
-      { x: 510, y: 465, width: 400, height: 360, borderRadius: 25 },
-      { x: 90, y: 855, width: 400, height: 360, borderRadius: 25 },
-      { x: 510, y: 855, width: 400, height: 360, borderRadius: 25 },
-    ],
-    logo: { x: 425, y: 1280, width: 150, height: 35 },
-    timestamp: { x: 500, y: 1340, fontSize: 30 },
-  }
+    '2x2': {
+        canvasSize: { width: 1000, height: 1100 },
+        slots: [
+            { x: 40, y: 70, width: 450, height: 420, borderRadius: 20 },
+            { x: 510, y: 70, width: 450, height: 420, borderRadius: 20 },
+            { x: 40, y: 510, width: 450, height: 420, borderRadius: 20 },
+            { x: 510, y: 510, width: 450, height: 420, borderRadius: 20 },
+        ],
+        logo: { x: 380, y: 940, width: 250, height: 120 },
+        timestamp: { x: 500, y: 1065, fontSize: 24 },
+    },
+    '3x1': {
+        canvasSize: { width: 1000, height: 2000 },
+        slots: [
+            { x: 130, y: 120, width: 740, height: 480, borderRadius: 30 },
+            { x: 130, y: 650, width: 740, height: 480, borderRadius: 30 },
+            { x: 130, y: 1180, width: 740, height: 480, borderRadius: 30 },
+        ],
+        logo: { x: 400, y: 1680, width: 250, height: 120 },
+        timestamp: { x: 500, y: 1840, fontSize: 30 },
+    },
+    '3x2': {
+        canvasSize: { width: 1000, height: 1455 },
+        slots: [
+            { x: 40, y: 50, width: 450, height: 400, borderRadius: 25 },
+            { x: 510, y: 50, width: 450, height: 400, borderRadius: 25 },
+            { x: 40, y: 465, width: 450, height: 400, borderRadius: 25 },
+            { x: 510, y: 465, width: 450, height: 400, borderRadius: 25 },
+            { x: 40, y: 880, width: 450, height: 400, borderRadius: 25 },
+            { x: 510, y: 880, width: 450, height: 400, borderRadius: 25 },
+        ],
+        logo: { x: 360, y: 1280, width: 250, height: 120 },
+        timestamp: { x: 482, y: 1410, fontSize: 26 },
+    }
 };
 
 export default function PreviewPage({ images, grid }) {
@@ -112,7 +112,7 @@ export default function PreviewPage({ images, grid }) {
                         const slot = layout.slots[index];
                         ctx.save();
                         ctx.beginPath();
-                        
+
                         const x = slot.x;
                         const y = slot.y;
                         const width = slot.width;
@@ -120,7 +120,7 @@ export default function PreviewPage({ images, grid }) {
 
                         ctx.roundRect(x, y, width, height, [slot.borderRadius]);
                         ctx.clip();
-                        
+
                         const sWidth = photo.naturalWidth;
                         const sHeight = photo.naturalHeight;
                         const dWidth = width;
@@ -140,17 +140,21 @@ export default function PreviewPage({ images, grid }) {
                         ctx.restore();
                     }
                 });
-                
+
                 if (layout.logo) {
                     ctx.drawImage(logoImage, layout.logo.x, layout.logo.y, layout.logo.width, layout.logo.height);
                 }
-                
+
                 if (showTimestamp && layout.timestamp) {
-                    ctx.fillStyle = '#374151';
-                    ctx.font = `bold ${layout.timestamp.fontSize}px Poppins, sans-serif`;
-                    ctx.textAlign = 'center';
                     const now = new Date();
                     const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    ctx.font = `500 ${layout.timestamp.fontSize}px Poppins, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.strokeStyle = '#374151'; 
+                    ctx.lineWidth = 2;       
+                    ctx.lineJoin = 'round'; 
+                    ctx.strokeText(dateStr, layout.timestamp.x, layout.timestamp.y);
+                    ctx.fillStyle = '#FFFFFF';  
                     ctx.fillText(dateStr, layout.timestamp.x, layout.timestamp.y);
                 }
             })
@@ -175,10 +179,10 @@ export default function PreviewPage({ images, grid }) {
     const availableThemes = themeConfig[grid.id];
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen mt-10">
             <div className="bg-white shadow-sm border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-6 py-8 text-center">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Foto sudah siap!</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Fotomu dah siap!</h1>
                     <p className="text-gray-600 max-w-md mx-auto">Pilih tema frame favoritmu dan unduh sekarang.</p>
                 </div>
             </div>
@@ -186,7 +190,7 @@ export default function PreviewPage({ images, grid }) {
                 <div className="grid lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <canvas ref={canvasRef} className="w-full h-auto rounded-lg shadow-sm border border-gray-100"/>
+                            <canvas ref={canvasRef} className="w-full h-auto rounded-lg shadow-sm border border-gray-100" />
                         </div>
                     </div>
                     <div className="lg:col-span-1">

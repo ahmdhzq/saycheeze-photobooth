@@ -2,12 +2,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Camera, Upload, Check } from 'lucide-react';
 
-export default function CameraView({ grid, onComplete }) {
+// ===================================
+// Bagian untuk MODE KAMERA OTOMATIS
+// ===================================
+function CameraSession({ grid, onComplete }) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [stream, setStream] = useState(null);
-
     const [images, setImages] = useState(Array(grid.photoCount).fill(null));
     const [timerDuration, setTimerDuration] = useState(3);
     const [countdown, setCountdown] = useState(null);
@@ -17,47 +20,26 @@ export default function CameraView({ grid, onComplete }) {
     useEffect(() => {
         const startCamera = async () => {
             try {
-                const streamData = await navigator.mediaDevices.getUserMedia({
-                    video: { width: 1280, height: 720, facingMode: 'user' },
-                    audio: false,
-                });
-                setStream(streamData);
-                if (videoRef.current) {
-                    videoRef.current.srcObject = streamData;
-                }
-            } catch (err) {
-                console.error("Error accessing camera:", err);
-            }
+                const streamData = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' }, audio: false });
+                if (videoRef.current) videoRef.current.srcObject = streamData;
+            } catch (err) { console.error("Error accessing camera:", err); }
         };
         startCamera();
-        return () => {
-            if (stream) stream.getTracks().forEach(track => track.stop());
-        };
+        return () => { if (videoRef.current && videoRef.current.srcObject) videoRef.current.srcObject.getTracks().forEach(track => track.stop()); };
     }, []);
 
     useEffect(() => {
-        if (!isCapturing || currentPhotoIndex >= grid.photoCount) {
-            return;
-        }
-
+        if (!isCapturing || currentPhotoIndex >= grid.photoCount) return;
         const initialPause = setTimeout(() => {
             setCountdown(timerDuration);
-            const countdownInterval = setInterval(() => {
-                setCountdown(prev => (prev !== null ? prev - 1 : null));
-            }, 1000);
-
+            const countdownInterval = setInterval(() => setCountdown(prev => (prev !== null ? prev - 1 : null)), 1000);
             const captureTimeout = setTimeout(() => {
                 clearInterval(countdownInterval);
                 setCountdown(null);
                 takePicture();
             }, timerDuration * 1000);
-            
-            return () => {
-                clearTimeout(captureTimeout);
-                clearInterval(countdownInterval);
-            };
+            return () => { clearTimeout(captureTimeout); clearInterval(countdownInterval); };
         }, currentPhotoIndex === 0 ? 0 : 2000);
-
         return () => clearTimeout(initialPause);
     }, [isCapturing, currentPhotoIndex, grid.photoCount, timerDuration]);
 
@@ -72,11 +54,9 @@ export default function CameraView({ grid, onComplete }) {
             context.scale(-1, 1);
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             const dataUrl = canvas.toDataURL('image/png');
-
             const newImages = [...images];
             newImages[currentPhotoIndex] = dataUrl;
             setImages(newImages);
-
             if (currentPhotoIndex >= grid.photoCount - 1) {
                 setIsCapturing(false);
                 onComplete(newImages);
@@ -93,159 +73,105 @@ export default function CameraView({ grid, onComplete }) {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Header Section */}
-            <div className="bg-white shadow-sm border-b border-gray-200">
-                <div className="max-w-6xl mx-auto px-4 md:px-6 py-6">
-                    <div className="text-center">
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                            Siap Foto? Ayo Mulai!
-                        </h1>
-                        <p className="text-gray-600 text-sm md:text-base">
-                            Layout: <span className="font-semibold text-pink-600">{grid.label}</span> • Total: <span className="font-semibold text-pink-600">{grid.photoCount} foto</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="max-w-6xl mx-auto p-4 md:p-6">
-                
-                {/* Camera Section */}
-                <div className="mb-6 md:mb-8">
-                    <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200 p-3 md:p-6">
-                        <div className="relative aspect-video rounded-lg md:rounded-xl overflow-hidden bg-black shadow-sm">
-                            <video 
-                                ref={videoRef} 
-                                autoPlay 
-                                playsInline 
-                                muted 
-                                className="w-full h-full object-cover transform -scale-x-100" 
-                            />
-                            <canvas ref={canvasRef} style={{ display: 'none' }} />
-                            
-                            {countdown !== null && countdown > 0 && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-                                    <div className="text-center">
-                                        <div className="text-8xl md:text-9xl font-bold text-white mb-4 animate-pulse">
-                                            {countdown}
-                                        </div>
-                                        <div className="text-xl md:text-2xl font-semibold text-pink-400">
-                                            Siap-siap... Smile!
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            
-                            <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
-                                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                                <span className="text-white text-xs md:text-sm font-medium">LIVE</span>
-                            </div>
-
-                            {isCapturing && (
-                                <div className="absolute top-2 right-2 md:top-4 md:right-4 bg-black/60 backdrop-blur-sm rounded-xl px-3 py-1.5">
-                                    <span className="text-white font-semibold">
-                                        {currentPhotoIndex + 1} / {grid.photoCount}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Control Panel */}
-                {!isCapturing ? (
-                    <div className="mb-6 md:mb-8">
-                        <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
-                            <div className="flex flex-col items-center gap-4">
-                                
-                                <div className="text-center md:text-left">
-                                    <span className="text-lg font-semibold text-gray-900">Timer Countdown</span>
-                                </div>
-                                
-                                <div className="flex gap-3">
-                                    {[3, 5, 10].map(duration => (
-                                        <button 
-                                            key={duration} 
-                                            onClick={() => setTimerDuration(duration)}
-                                            className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-base ${
-                                                timerDuration === duration 
-                                                    ? 'bg-pink-600 text-white shadow-sm' 
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                            }`}
-                                        >
-                                            {duration}s
-                                        </button>
-                                    ))}
-                                </div>
-
-                                <button 
-                                    onClick={handleStartSession} 
-                                    className="w-full md:w-auto bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3 mt-4"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M19 10a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Mulai Sesi Foto!
-                                </button>
-
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="mb-6 md:mb-8">
-                        <div className="bg-pink-50 border border-pink-200 rounded-xl md:rounded-2xl p-4 md:p-6">
-                            <div className="text-center">
-                                <p className="text-base md:text-lg text-gray-700 mb-2">
-                                    Mengambil foto <span className="font-bold text-pink-600">{currentPhotoIndex + 1}</span> dari <span className="font-bold text-pink-600">{grid.photoCount}</span>... Siapkan pose terbaikmu!
-                                </p>
-                                
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div 
-                                        className="bg-pink-500 h-2 rounded-full transition-all duration-300"
-                                        style={{ width: `${((currentPhotoIndex + 1) / grid.photoCount) * 100}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        </div>
+        <div className="w-full flex flex-col items-center gap-6">
+            <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
+                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
+                {countdown !== null && countdown > 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                        <span className="text-9xl font-bold text-white animate-ping">{countdown}</span>
                     </div>
                 )}
-                
-                {/* Photo Gallery Preview */}
-                <div className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
-                    <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4">Preview Galeri Foto</h3>
-                    
-                    <div className="grid gap-2 md:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                        {images.map((img, index) => (
-                            <div key={index} 
-                                 className={`group relative aspect-video bg-gray-100 rounded-lg md:rounded-xl flex items-center justify-center overflow-hidden border-2 transition-all duration-300 ${
-                                     img ? 'border-green-400 bg-green-50' : 
-                                     index === currentPhotoIndex && isCapturing ? 'border-pink-400 bg-pink-50 animate-pulse' :
-                                     'border-gray-200'
-                                 }`}>
-                                {img ? (
-                                    <>
-                                        <img src={img} alt={`Capture ${index + 1}`} className="w-full h-full object-cover" />
-                                        <div className="absolute top-1.5 right-1.5 md:top-2 md:right-2 bg-green-500 text-white rounded-full p-1">
-                                            <svg className="w-2 h-2 md:w-3 md:h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="text-center p-2">
-                                        <span className={`text-xs md:text-sm font-medium ${
-                                            index === currentPhotoIndex && isCapturing ? 'text-pink-600' : 'text-gray-500'
-                                        }`}>
-                                            {index === currentPhotoIndex && isCapturing ? 'Berikutnya' : `Foto ${index + 1}`}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
+            </div>
+            {!isCapturing ? (
+                <div className="w-full max-w-md p-4 bg-white rounded-xl shadow-md flex flex-col items-center gap-4">
+                    <div className="flex gap-2">
+                        <span className="font-semibold">Timer:</span>
+                        {[3, 5, 10].map(duration => (
+                            <button key={duration} onClick={() => setTimerDuration(duration)} className={`px-4 py-2 rounded-lg font-semibold ${timerDuration === duration ? 'bg-pink-500 text-white' : 'bg-gray-100'}`}>{duration}s</button>
                         ))}
                     </div>
+                    <button onClick={handleStartSession} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-lg">Mulai Sesi Kamera</button>
                 </div>
+            ) : (
+                <p className="text-xl animate-pulse text-gray-700">Mengambil foto {currentPhotoIndex + 1} dari {grid.photoCount}...</p>
+            )}
+        </div>
+    );
+}
+
+// ===================================
+// Bagian untuk MODE UPLOAD MANUAL
+// ===================================
+function UploadSession({ grid, onComplete }) {
+    const [images, setImages] = useState(Array(grid.photoCount).fill(null));
+    const fileInputRef = useRef(null);
+    const [activeIndex, setActiveIndex] = useState(null);
+    const isComplete = images.every(img => img !== null);
+
+    const handleUploadClick = (index) => {
+        setActiveIndex(index);
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file && activeIndex !== null) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const newImages = [...images];
+                newImages[activeIndex] = e.target.result;
+                setImages(newImages);
+                setActiveIndex(null);
+            };
+            reader.readAsDataURL(file);
+        }
+        event.target.value = null; // Reset input file
+    };
+    
+    return (
+        <div className="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+             <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/png, image/jpeg" onChange={handleFileChange}/>
+             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Upload Fotomu ({grid.label})</h2>
+             <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+                {images.map((img, index) => (
+                    <div key={index} className="aspect-square">
+                        {img ? (
+                            <div className="relative w-full h-full group">
+                                <img src={img} alt={`Upload ${index + 1}`} className="w-full h-full object-cover rounded-xl" />
+                                <button onClick={() => handleUploadClick(index)} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 rounded-xl flex items-center justify-center text-white transition-opacity">
+                                    <Upload className="w-8 h-8"/>
+                                </button>
+                            </div>
+                        ) : (
+                            <button onClick={() => handleUploadClick(index)} className="w-full h-full bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-200">
+                                <Upload className="w-8 h-8 mb-2"/>
+                                <span>Slot #{index + 1}</span>
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+             <div className="mt-8 text-center">
+                <button onClick={() => onComplete(images)} disabled={!isComplete} className="bg-pink-500 text-white font-bold py-4 px-10 rounded-xl disabled:bg-gray-300 disabled:cursor-not-allowed">
+                    {isComplete ? 'Lanjut ke Pratinjau' : 'Isi Semua Slot'}
+                </button>
             </div>
         </div>
     );
+}
+
+// ===================================
+// Komponen Utama CameraView (Manajer)
+// ===================================
+export default function CameraView({ grid, onComplete, mode }) {
+    if (mode === 'camera') {
+        return <CameraSession grid={grid} onComplete={onComplete} />;
+    }
+    
+    if (mode === 'upload') {
+        return <UploadSession grid={grid} onComplete={onComplete} />;
+    }
+
+    return <div className="text-center">Memuat mode...</div>;
 }

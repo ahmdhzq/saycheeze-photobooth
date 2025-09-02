@@ -1,31 +1,27 @@
+// app/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Camera } from 'lucide-react';
+import { Camera, Upload, Film } from 'lucide-react';
+
+import LandingPage from '../components/LandingPage';
 import GridSelector from '../components/GridSelector';
 
 const CameraView = dynamic(() => import('../components/CameraView'), {
-  ssr: false,
-  loading: () => (
-    <div className="text-center p-10 bg-gray-100 rounded-lg">
-      <p className="animate-pulse">📷 Mempersiapkan kamera...</p>
-    </div>
-  )
+  ssr: false, 
+  loading: () => <p className="animate-pulse">📷 Mempersiapkan...</p>
 });
 
 const PreviewPage = dynamic(() => import('../components/PreviewPage'), {
   ssr: false,
-  loading: () => (
-    <div className="text-center p-10 bg-gray-100 rounded-lg">
-      <p className="animate-pulse">✨ Memuat pratinjau...</p>
-    </div>
-  )
+  loading: () => <p className="animate-pulse">✨ Memuat pratinjau...</p>
 });
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState('intro');
   const [selectedGrid, setSelectedGrid] = useState(null);
+  const [captureMode, setCaptureMode] = useState(null); // State untuk mode (camera/upload)
   const [capturedImages, setCapturedImages] = useState([]);
   const [isClient, setIsClient] = useState(false);
 
@@ -33,75 +29,85 @@ export default function Home() {
 
   const handleGridSelect = (grid) => {
     setSelectedGrid(grid);
-    setCurrentStep('camera');
+    setCurrentStep('mode-selection'); // DIUBAH: Lanjut ke pemilihan mode
+  };
+
+  const handleModeSelect = (mode) => {
+    setCaptureMode(mode);
+    setCurrentStep('capture');
   };
 
   const handleCaptureComplete = (images) => {
     setCapturedImages(images);
     setCurrentStep('preview');
   };
-
+  
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center 
-                     bg-white text-gray-800 px-6 py-12 overflow-hidden">
+                     bg-white text-gray-800 px-4 md:px-6 py-12 -mt-24 overflow-hidden">
 
-      {/* Background efek lembut */}
       <div className="absolute inset-0 flex justify-center items-center">
         <div className="w-[500px] h-[500px] bg-pink-200/50 blur-3xl rounded-full"></div>
       </div>
 
-      {/* Intro */}
-      {currentStep === 'intro' && (
-        <section className="relative z-10 text-center space-y-6">
-          <div className="flex justify-center">
-            <Camera className="w-16 h-16 text-pink-500" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900">
-            Say Cheeze - Free Online Photobooth
-          </h1>
-          <p className="text-lg text-gray-600 max-w-xl mx-auto">
-            Abadikan momen seru bersama teman & keluarga langsung dari browser Anda.
-            Pilih gaya, ambil foto, dan bagikan hasilnya dengan mudah 🎉
-          </p>
+      <div className="relative z-10 w-full max-w-6xl">
+        {currentStep === 'intro' && (
+          <LandingPage onStart={() => setCurrentStep('grid')} />
+        )}
 
-          <button
-            onClick={() => setCurrentStep('grid')}
-            className="px-8 py-3 bg-pink-500 hover:bg-pink-600 text-white 
-                       rounded-full font-semibold shadow-md transition"
-          >
-            Mulai Sekarang
-          </button>
-        </section>
-      )}
-
-      {/* Pilih grid */}
-      {currentStep === 'grid' && (
-        <div className="relative z-10 w-full max-w-4xl mt-6">
+        {currentStep === 'grid' && (
           <GridSelector onGridSelect={handleGridSelect} />
-        </div>
-      )}
+        )}
 
-      {/* Kamera */}
-      {isClient && currentStep === 'camera' && (
-        <div className="relative z-10 w-full max-w-4xl mt-6">
+        {/* TAMPILAN BARU UNTUK MEMILIH MODE */}
+        {currentStep === 'mode-selection' && (
+            <section className="text-center space-y-6 flex flex-col items-center">
+                <div className="flex justify-center p-4 bg-pink-100/50 rounded-full">
+                    <Film className="w-12 h-12 text-pink-500" />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+                    Pilih Cara Mengisi Fotomu
+                </h1>
+                <p className="text-lg text-gray-600 max-w-xl mx-auto">
+                    Anda akan mengisi {selectedGrid.photoCount} foto. Silakan pilih salah satu mode di bawah.
+                </p>
+                <div className="grid md:grid-cols-2 gap-6 pt-4 w-full max-w-2xl">
+                    <button 
+                        onClick={() => handleModeSelect('camera')} 
+                        className="p-6 bg-white border-2 border-gray-200 rounded-2xl text-left hover:border-pink-500 hover:bg-pink-50 transition-all group"
+                    >
+                        <Camera className="w-8 h-8 text-pink-500 mb-3" />
+                        <h3 className="text-lg font-bold text-gray-800">Gunakan Kamera</h3>
+                        <p className="text-gray-600">Ambil foto baru secara berurutan dengan countdown.</p>
+                    </button>
+                    <button 
+                        onClick={() => handleModeSelect('upload')} 
+                        className="p-6 bg-white border-2 border-gray-200 rounded-2xl text-left hover:border-indigo-500 hover:bg-indigo-50 transition-all group"
+                    >
+                        <Upload className="w-8 h-8 text-indigo-500 mb-3" />
+                        <h3 className="text-lg font-bold text-gray-800">Upload dari Galeri</h3>
+                        <p className="text-gray-600">Pilih foto satu per satu dari perangkat Anda.</p>
+                    </button>
+                </div>
+            </section>
+        )}
+
+        {isClient && currentStep === 'capture' && (
           <CameraView
             grid={selectedGrid}
+            mode={captureMode} // Kirim mode yang dipilih
             onComplete={handleCaptureComplete}
           />
-        </div>
-      )}
+        )}
 
-      {/* Preview */}
-      {isClient && currentStep === 'preview' && (
-        <div className="relative z-10 w-full max-w-4xl mt-6">
+        {isClient && currentStep === 'preview' && (
           <PreviewPage
             images={capturedImages}
             grid={selectedGrid}
           />
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Footer */}
       <footer className="relative z-10 mt-16 text-sm text-gray-500">
         © {new Date().getFullYear()} Online Photobooth — Capture Your Moment
       </footer>
