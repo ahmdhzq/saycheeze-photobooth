@@ -33,17 +33,17 @@ const frameLayouts = {
             { x: 505, y: 500, width: 445, height: 420, borderRadius: 20 },
         ],
         logo: { x: 380, y: 930, width: 250, height: 120 },
-        timestamp: { x: 500, y: 1062, fontSize: 24 },
+        timestamp: { x: 500, y: 1062, fontSize: 25 },
     },
     '3x1': {
         canvasSize: { width: 1000, height: 2000 },
         slots: [
-            { x: 130, y: 120, width: 740, height: 480, borderRadius: 30 },
-            { x: 130, y: 650, width: 740, height: 480, borderRadius: 30 },
-            { x: 130, y: 1180, width: 740, height: 480, borderRadius: 30 },
+            { x: 85, y: 70, width: 830, height: 540, borderRadius: 30 },
+            { x: 85, y: 630, width: 830, height: 540, borderRadius: 30 },
+            { x: 85, y: 1190, width: 830, height: 540, borderRadius: 30 },
         ],
-        logo: { x: 400, y: 1680, width: 250, height: 120 },
-        timestamp: { x: 500, y: 1840, fontSize: 30 },
+        logo: { x: 390, y: 1760, width: 250, height: 120 },
+        timestamp: { x: 510, y: 1910, fontSize: 25 },
     },
     '3x2': {
         canvasSize: { width: 1000, height: 1455 },
@@ -56,7 +56,7 @@ const frameLayouts = {
             { x: 510, y: 880, width: 450, height: 400, borderRadius: 25 },
         ],
         logo: { x: 360, y: 1280, width: 250, height: 120 },
-        timestamp: { x: 482, y: 1410, fontSize: 26 },
+        timestamp: { x: 482, y: 1410, fontSize: 25 },
     }
 };
 
@@ -97,34 +97,18 @@ export default function PreviewPage({ images, grid }) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
-                const contentAreaWidth = canvas.width * 0.90;
-                const contentAreaHeight = canvas.height * 0.72;
-                const [rows, cols] = grid.id.split('x').map(Number);
-                const padding = contentAreaWidth * 0.05 / (cols > 1 ? cols - 1 : 1);
-                const photoWidth = (contentAreaWidth - (padding * (cols - 1))) / cols;
-                const photoHeight = photoWidth * (4 / 3);
-                const totalGridHeight = (rows * photoHeight) + (padding * (rows - 1));
-                const startX = (canvas.width - contentAreaWidth) / 2;
-                const startY = (canvas.height - totalGridHeight) / 2.5;
-
                 userPhotos.forEach((photo, index) => {
                     if (index < layout.slots.length) {
                         const slot = layout.slots[index];
                         ctx.save();
                         ctx.beginPath();
-
-                        const x = slot.x;
-                        const y = slot.y;
-                        const width = slot.width;
-                        const height = slot.height;
-
-                        ctx.roundRect(x, y, width, height, [slot.borderRadius]);
+                        ctx.roundRect(slot.x, slot.y, slot.width, slot.height, [slot.borderRadius]);
                         ctx.clip();
-
+                        
                         const sWidth = photo.naturalWidth;
                         const sHeight = photo.naturalHeight;
-                        const dWidth = width;
-                        const dHeight = height;
+                        const dWidth = slot.width;
+                        const dHeight = slot.height;
                         const sRatio = sWidth / sHeight;
                         const dRatio = dWidth / dHeight;
                         let sx = 0, sy = 0, cropWidth = sWidth, cropHeight = sHeight;
@@ -136,15 +120,15 @@ export default function PreviewPage({ images, grid }) {
                             cropHeight = sWidth / dRatio;
                             sy = (sHeight - cropHeight) / 2;
                         }
-                        ctx.drawImage(photo, sx, sy, cropWidth, cropHeight, x, y, dWidth, dHeight);
+                        ctx.drawImage(photo, sx, sy, cropWidth, cropHeight, slot.x, slot.y, dWidth, dHeight);
                         ctx.restore();
                     }
                 });
-
+                
                 if (layout.logo) {
                     ctx.drawImage(logoImage, layout.logo.x, layout.logo.y, layout.logo.width, layout.logo.height);
                 }
-
+                
                 if (showTimestamp && layout.timestamp) {
                     const now = new Date();
                     const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -179,10 +163,10 @@ export default function PreviewPage({ images, grid }) {
     const availableThemes = themeConfig[grid.id];
 
     return (
-        <div className="min-h-screen mt-10">
+        <div className="min-h-screen bg-gray-50">
             <div className="bg-white shadow-sm border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-6 py-8 text-center">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Fotomu dah siap!</h1>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Foto sudah siap!</h1>
                     <p className="text-gray-600 max-w-md mx-auto">Pilih tema frame favoritmu dan unduh sekarang.</p>
                 </div>
             </div>
@@ -190,7 +174,7 @@ export default function PreviewPage({ images, grid }) {
                 <div className="grid lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <canvas ref={canvasRef} className="w-full h-auto rounded-lg shadow-sm border border-gray-100" />
+                            <canvas ref={canvasRef} className="w-full h-auto rounded-lg shadow-sm border border-gray-100"/>
                         </div>
                     </div>
                     <div className="lg:col-span-1">
@@ -204,7 +188,7 @@ export default function PreviewPage({ images, grid }) {
                                             onClick={() => setSelectedTheme(theme)}
                                             className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-4 border-2 ${selectedTheme.id === theme.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
                                         >
-                                            <img src={theme.path} alt={theme.name} className="w-16 h-16 object-cover rounded-md border border-gray-200" />
+                                            <img src={theme.path} alt={theme.name} className="w-12 h-12 object-cover rounded-md border border-gray-200" />
                                             <div className="text-left flex-grow">
                                                 <p className="font-medium text-gray-900">{theme.name}</p>
                                             </div>
