@@ -8,7 +8,7 @@ export default function GridSelector({ onGridSelect }) {
     ];
 
     return (
-        <div className="min-h-screen my-10 flex items-center justify-center px-6">
+        <div className="min-h-screen mt-8 flex items-center justify-center px-6">
             <div className="w-full max-w-6xl">
                 
                 {/* Hero Section */}

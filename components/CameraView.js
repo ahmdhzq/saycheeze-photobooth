@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Camera, Upload, Check } from 'lucide-react';
 
 // ===================================
-// Bagian untuk MODE KAMERA OTOMATIS
+// Bagian untuk MODE KAMERA OTOMATIS (YANG DIROMBAK)
 // ===================================
 function CameraSession({ grid, onComplete }) {
     const videoRef = useRef(null);
@@ -16,6 +16,8 @@ function CameraSession({ grid, onComplete }) {
     const [countdown, setCountdown] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+    // BARU: State untuk efek flash
+    const [flashEffect, setFlashEffect] = useState(false);
 
     useEffect(() => {
         const startCamera = async () => {
@@ -44,6 +46,10 @@ function CameraSession({ grid, onComplete }) {
     }, [isCapturing, currentPhotoIndex, grid.photoCount, timerDuration]);
 
     const takePicture = () => {
+        // BARU: Memicu efek flash
+        setFlashEffect(true);
+        setTimeout(() => setFlashEffect(false), 200); // Matikan flash setelah 200ms
+
         if (videoRef.current && canvasRef.current) {
             const video = videoRef.current;
             const canvas = canvasRef.current;
@@ -73,35 +79,70 @@ function CameraSession({ grid, onComplete }) {
     };
 
     return (
-        <div className="w-full flex flex-col items-center gap-6">
-            <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
-                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
-                <canvas ref={canvasRef} style={{ display: 'none' }} />
-                {countdown !== null && countdown > 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-                        <span className="text-9xl font-bold text-white animate-ping">{countdown}</span>
+        <div className="w-full mt-14 grid lg:grid-cols-3 gap-8 items-start">
+            
+            {/* Kolom Kiri: Kamera & Kontrol */}
+            <div className="lg:col-span-2 flex flex-col items-center gap-6">
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
+                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
+                    <canvas ref={canvasRef} style={{ display: 'none' }} />
+                    
+                    {/* BARU: Div untuk efek flash */}
+                    <div className={`absolute inset-0 bg-white transition-opacity duration-100 ${flashEffect ? 'opacity-80' : 'opacity-0'}`}></div>
+
+                    {countdown !== null && countdown > 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                            <span className="text-9xl font-bold text-white animate-ping">{countdown}</span>
+                        </div>
+                    )}
+                </div>
+
+                {!isCapturing ? (
+                    <div className="w-full max-w-md p-4 bg-white rounded-xl shadow-md flex flex-col items-center gap-4">
+                        <div className="flex gap-2">
+                            <span className="font-semibold">Timer:</span>
+                            {[3, 5, 10].map(duration => (
+                                <button key={duration} onClick={() => setTimerDuration(duration)} className={`px-4 py-2 rounded-lg font-semibold ${timerDuration === duration ? 'bg-pink-500 text-white' : 'bg-gray-100'}`}>{duration}s</button>
+                            ))}
+                        </div>
+                        <button onClick={handleStartSession} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-lg">Mulai Sesi Kamera</button>
                     </div>
+                ) : (
+                    <p className="text-xl h-24 flex items-center animate-pulse text-gray-700">Mengambil foto {currentPhotoIndex + 1} dari {grid.photoCount}...</p>
                 )}
             </div>
-            {!isCapturing ? (
-                <div className="w-full max-w-md p-4 bg-white rounded-xl shadow-md flex flex-col items-center gap-4">
-                    <div className="flex gap-2">
-                        <span className="font-semibold">Timer:</span>
-                        {[3, 5, 10].map(duration => (
-                            <button key={duration} onClick={() => setTimerDuration(duration)} className={`px-4 py-2 rounded-lg font-semibold ${timerDuration === duration ? 'bg-pink-500 text-white' : 'bg-gray-100'}`}>{duration}s</button>
-                        ))}
-                    </div>
-                    <button onClick={handleStartSession} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-lg">Mulai Sesi Kamera</button>
+
+            {/* BARU: Kolom Kanan: Pratinjau Hasil Jepretan */}
+            <div className="lg:col-span-1 bg-white rounded-2xl shadow-lg p-6 w-full">
+                <h3 className="text-xl font-bold text-center mb-4">Preview Hasil</h3>
+                <div className="space-y-4">
+                    {images.map((img, index) => (
+                        <div key={index} className={`relative aspect-video rounded-lg flex items-center justify-center transition-all duration-300
+                            ${ index === currentPhotoIndex && isCapturing ? 'border-4 border-pink-500' : 'border-2 border-gray-200'}
+                            ${ img ? 'bg-green-50' : 'bg-gray-100' }
+                        `}>
+                            {img ? (
+                                <img src={img} alt={`Capture ${index + 1}`} className="w-full h-full object-cover rounded-md" />
+                            ) : (
+                                <span className="text-gray-400">Slot Foto #{index + 1}</span>
+                            )}
+                            
+                            {/* Indikator status */}
+                            <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold
+                                ${ img ? 'bg-green-500' : 'bg-gray-400' }
+                            `}>
+                                {img ? <Check size={14} /> : index + 1}
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            ) : (
-                <p className="text-xl animate-pulse text-gray-700">Mengambil foto {currentPhotoIndex + 1} dari {grid.photoCount}...</p>
-            )}
+            </div>
         </div>
     );
 }
 
 // ===================================
-// Bagian untuk MODE UPLOAD MANUAL
+// Bagian untuk MODE UPLOAD MANUAL (Tidak Berubah)
 // ===================================
 function UploadSession({ grid, onComplete }) {
     const [images, setImages] = useState(Array(grid.photoCount).fill(null));
@@ -126,7 +167,7 @@ function UploadSession({ grid, onComplete }) {
             };
             reader.readAsDataURL(file);
         }
-        event.target.value = null; // Reset input file
+        event.target.value = null;
     };
     
     return (
@@ -153,7 +194,7 @@ function UploadSession({ grid, onComplete }) {
                 ))}
             </div>
              <div className="mt-8 text-center">
-                <button onClick={() => onComplete(images)} disabled={!isComplete} className="bg-pink-500 text-white font-bold py-4 px-10 rounded-xl disabled:bg-gray-300 disabled:cursor-not-allowed">
+                <button onClick={() => onComplete(images)} disabled={!isComplete} className="bg-pink-500 text-white font-bold py-4 px-10 rounded-xl disabled:bg-gray-300">
                     {isComplete ? 'Lanjut ke Pratinjau' : 'Isi Semua Slot'}
                 </button>
             </div>

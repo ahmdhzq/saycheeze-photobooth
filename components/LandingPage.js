@@ -5,7 +5,7 @@ import { Camera } from 'lucide-react';
 
 export default function LandingPage({ onStart }) {
   return (
-    <section className="relative z-10 text-center space-y-6 flex flex-col items-center">
+    <section className="relative -mt-10 z-10 text-center space-y-6 flex flex-col items-center">
       <div className="flex justify-center p-4 bg-pink-100/50 rounded-full">
         <Camera className="w-12 h-12 text-pink-500" />
       </div>

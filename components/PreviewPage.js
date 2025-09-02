@@ -27,13 +27,13 @@ const frameLayouts = {
     '2x2': {
         canvasSize: { width: 1000, height: 1100 },
         slots: [
-            { x: 40, y: 70, width: 450, height: 420, borderRadius: 20 },
-            { x: 510, y: 70, width: 450, height: 420, borderRadius: 20 },
-            { x: 40, y: 510, width: 450, height: 420, borderRadius: 20 },
-            { x: 510, y: 510, width: 450, height: 420, borderRadius: 20 },
+            { x: 50, y: 70, width: 445, height: 420, borderRadius: 20 },
+            { x: 505, y: 70, width: 445, height: 420, borderRadius: 20 },
+            { x: 50, y: 500, width: 445, height: 420, borderRadius: 20 },
+            { x: 505, y: 500, width: 445, height: 420, borderRadius: 20 },
         ],
-        logo: { x: 380, y: 940, width: 250, height: 120 },
-        timestamp: { x: 500, y: 1065, fontSize: 24 },
+        logo: { x: 380, y: 930, width: 250, height: 120 },
+        timestamp: { x: 500, y: 1062, fontSize: 24 },
     },
     '3x1': {
         canvasSize: { width: 1000, height: 2000 },
