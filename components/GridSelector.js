@@ -26,7 +26,7 @@ export default function GridSelector({ onGridSelect }) {
                     </p>
                     <div className="bg-white rounded-full px-6 py-3 inline-block shadow-sm border border-gray-200">
                         <p className="text-pink-600 font-medium">
-                            Ready for an unforgettable photo session? Let's get started!
+                            Ready for an unforgettable photo session? Let&apos;s get started!
                         </p>
                     </div>
                 </div>
