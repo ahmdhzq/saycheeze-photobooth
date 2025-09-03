@@ -194,8 +194,8 @@ function UploadSession({ grid, onComplete, onBack }) {
         if (!file || activeIndex === null) return;
 
         // 1. Validasi Ukuran File (maks 1 MB)
-        if (file.size > 1 * 1024 * 1024) {
-            setErrorMessage('Ukuran file terlalu besar! Maksimal 1 MB.');
+        if (file.size > 2 * 1024 * 1024) {
+            setErrorMessage('File size is too large! Max 2 MB.');
             event.target.value = null; // Reset input
             return;
         }
