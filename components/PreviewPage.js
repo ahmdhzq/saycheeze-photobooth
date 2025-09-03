@@ -1,22 +1,23 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import { useRef, useEffect, useState } from 'react';
 
 const stickerConfig = {
     '2x2': [
-        { id: 'stiker-1', name: 'stiker-1', path: '/assets/stikers/2x2/stiker-1.svg' },
-        { id: 'stiker-2', name: 'stiker-2', path: '/assets/stikers/2x2/stiker-2.svg' },
-        { id: 'stiker-3', name: 'stiker-3', path: '/assets/stikers/2x2/stiker-3.svg' },
+        { id: 'stiker-1', name: 'Nailong', path: '/assets/stikers/2x2/stiker/stiker-1.svg' },
+        { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/2x2/stiker/stiker-2.svg' },
+        { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/2x2/stiker/stiker-3.svg' },
     ],
     '3x1': [
-        { id: 'stiker-1', name: 'stiker-1', path: '/assets/stikers/3x1/stiker-1.svg' },
-        { id: 'stiker-2', name: 'stiker-2', path: '/assets/stikers/3x1/stiker-2.svg' },
-        { id: 'stiker-3', name: 'stiker-3', path: '/assets/stikers/3x1/stiker-3.svg' },
+        { id: 'stiker-1', name: 'Nailong', path: '/assets/stikers/3x1/stiker/stiker-1.svg' },
+        { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/3x1/stiker/stiker-2.svg' },
+        { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/3x1/stiker/stiker-3.svg' },
     ],
     '3x2': [
-        { id: 'stiker-1', name: 'stiker-1', path: '/assets/stikers/3x2/stiker-1.svg' },
-        { id: 'stiker-2', name: 'stiker-2', path: '/assets/stikers/3x2/stiker-2.svg' },
-        { id: 'stiker-3', name: 'stiker-3', path: '/assets/stikers/3x2/stiker-3.svg' },
+        { id: 'stiker-1', name: 'Nailong', path: '/assets/stikers/3x2/stiker/stiker-1.svg' },
+        { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/3x2/stiker/stiker-2.svg' },
+        { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/3x2/stiker/stiker-3.svg' },
     ]
 };
 
@@ -86,14 +87,28 @@ export default function PreviewPage({ images, grid }) {
     const [selectedTheme, setSelectedTheme] = useState(themeConfig[grid.id][0]);
     const [showTimestamp, setShowTimestamp] = useState(true);
     const [selectedSticker, setSelectedSticker] = useState(null);
+    // BARU: State untuk melacak status proses rendering kanvas
+    const [isDrawing, setIsDrawing] = useState(false);
 
     useEffect(() => {
+        // BARU: Setiap kali ada perubahan, set status ke 'sedang menggambar'
+        setIsDrawing(true);
+
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        if (!canvas) {
+            setIsDrawing(false);
+            return;
+        }
         const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+        if (!ctx) {
+            setIsDrawing(false);
+            return;
+        }
         const layout = frameLayouts[grid.id];
-        if (!layout) return;
+        if (!layout) {
+            setIsDrawing(false);
+            return;
+        }
 
         canvas.width = layout.canvasSize.width;
         canvas.height = layout.canvasSize.height;
@@ -124,14 +139,7 @@ export default function PreviewPage({ images, grid }) {
                 const stickerImage = selectedSticker ? loadedImages[loadedImages.length - 1] : null;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                const scale = 1;
-                const newWidth = canvas.width * scale;
-                const newHeight = canvas.height * scale;
-                const offsetX = (canvas.width - newWidth) / 2;
-                const offsetY = (canvas.height - newHeight) / 2;
-
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(scale, scale);
+                
                 ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
                 userPhotos.forEach((photo, index) => {
@@ -169,18 +177,24 @@ export default function PreviewPage({ images, grid }) {
 
                 if (showTimestamp && layout.timestamp) {
                     const now = new Date();
-                    const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const dateStr = now.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
                     ctx.font = `500 ${layout.timestamp.fontSize}px Poppins, sans-serif`;
                     ctx.textAlign = 'center';
                     ctx.strokeStyle = '#374151';
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 4;
                     ctx.lineJoin = 'round';
                     ctx.strokeText(dateStr, layout.timestamp.x, layout.timestamp.y);
                     ctx.fillStyle = '#FFFFFF';
                     ctx.fillText(dateStr, layout.timestamp.x, layout.timestamp.y);
                 }
+                
+                // BARU: Setelah semua selesai, set status ke 'tidak sedang menggambar'
+                setIsDrawing(false);
             })
-            .catch(error => { console.error("Error loading images for canvas:", error); });
+            .catch(error => { 
+                console.error("Error loading images for canvas:", error); 
+                setIsDrawing(false); // Pastikan loading berhenti jika ada error
+            });
     }, [images, grid, selectedTheme, showTimestamp, selectedSticker]);
 
     const handleDownload = () => {
@@ -204,11 +218,18 @@ export default function PreviewPage({ images, grid }) {
             </div>
             <div className="max-w-6xl mx-auto py-8">
                 <div className="grid lg:grid-cols-2 gap-8 items-start">
-                    {/* Kolom Kiri: Canvas photo */}
                     <div className="flex justify-center items-center flex-col lg:col-span-1 space-y-4 border p-6 rounded-xl shadow-sm border-gray-200">
                         <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Photo</h3>
-                        <div className="shadow-xl rounded-xl">
+                        {/* BARU: Wrapper relative untuk menampung overlay loading */}
+                        <div className="relative shadow-xl rounded-xl w-full">
                             <canvas ref={canvasRef} className="w-full h-auto rounded-lg" />
+                            {/* BARU: Overlay Loading */}
+                            {isDrawing && (
+                                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center rounded-lg transition-opacity">
+                                    <Loader2 className="w-10 h-10 text-pink-600 animate-spin" />
+                                    <p className="mt-4 text-lg font-semibold text-gray-700">Processing...</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                     {/* Kolom Kanan: Panel Kontrol */}
@@ -216,12 +237,12 @@ export default function PreviewPage({ images, grid }) {
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-28">
                             <div className="mb-6">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Theme</h3>
-                                <div className="space-y-3">
+                                <div className="flex flex-row flex-wrap gap-4">
                                     {availableThemes.map(theme => (
                                         <button
                                             key={theme.id}
                                             onClick={() => setSelectedTheme(theme)}
-                                            className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${selectedTheme.id === theme.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
+                                            className={`w-28 p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${selectedTheme.id === theme.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
                                         >
                                             <img src={theme.path} alt={theme.name} className="w-12 h-12 object-cover rounded-md border border-gray-200" />
                                             {selectedTheme.id === theme.id && (
@@ -235,22 +256,25 @@ export default function PreviewPage({ images, grid }) {
                             </div>
                             <div className="mb-6">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Sticker</h3>
-                                <div className="space-y-3">
+                                <div className="flex flex-row flex-wrap gap-4">
                                     <button
                                         onClick={() => setSelectedSticker(null)}
-                                        className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${!selectedSticker ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
+                                        className={`w-32 p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${!selectedSticker ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
                                     >
                                         <div className="text-left flex-grow">
-                                            <p className="font-medium text-gray-900">No Sticker</p>
+                                            <p className="font-medium text-center text-gray-900">No Sticker</p>
                                         </div>
                                     </button>
                                     {availableStickers.map(sticker => (
                                         <button
                                             key={sticker.id}
                                             onClick={() => setSelectedSticker(sticker)}
-                                            className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${selectedSticker?.id === sticker.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
+                                            className={`w-40 p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${selectedSticker?.id === sticker.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
                                         >
                                             <img src={sticker.path} alt={sticker.name} className="w-12 h-12 object-contain rounded-md" />
+                                            <div className="text-left flex-grow">
+                                                <p className="font-medium text-gray-900">{sticker.name}</p>
+                                            </div>
                                         </button>
                                     ))}
                                 </div>

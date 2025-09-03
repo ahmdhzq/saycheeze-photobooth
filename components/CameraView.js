@@ -3,9 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Camera, Upload, Check } from 'lucide-react';
 
-// ===================================
-// Automatic Camera Session Mode
-// ===================================
 function CameraSession({ grid, onComplete }) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -20,16 +17,7 @@ function CameraSession({ grid, onComplete }) {
     useEffect(() => {
         const startCamera = async () => {
             try {
-                // DIUBAH: Meminta resolusi portrait (tinggi) dari kamera
-                const streamData = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        width: { ideal: 720 }, 
-                        height: { ideal: 1280 }, 
-                        aspectRatio: 9/16, // Memaksa rasio portrait
-                        facingMode: 'user' 
-                    }, 
-                    audio: false 
-                });
+                const streamData = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' }, audio: false });
                 if (videoRef.current) videoRef.current.srcObject = streamData;
             } catch (err) { console.error("Error accessing camera:", err); }
         };
@@ -65,7 +53,7 @@ function CameraSession({ grid, onComplete }) {
             context.translate(canvas.width, 0);
             context.scale(-1, 1);
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL('image/png');
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
             const newImages = [...images];
             newImages[currentPhotoIndex] = dataUrl;
             setImages(newImages);
@@ -85,24 +73,18 @@ function CameraSession({ grid, onComplete }) {
     };
 
     return (
-        // DIUBAH: Layout diubah untuk mengakomodasi tampilan portrait
-        <div className="w-full grid lg:grid-cols-2 gap-8 items-start">
-            
-            <div className="flex flex-col items-center gap-6">
-                {/* DIUBAH: Kontainer kamera menjadi portrait */}
-                <div className="relative w-full max-w-md mx-auto aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
+        <div className="w-full mt-14 grid lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-2 flex flex-col items-center gap-6">
+                <div className="relative w-full max-w-xl mx-auto aspect-[4/3] rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
                     <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
                     <canvas ref={canvasRef} style={{ display: 'none' }} />
-                    
                     <div className={`absolute inset-0 bg-white transition-opacity duration-100 ${flashEffect ? 'opacity-80' : 'opacity-0'}`}></div>
-
                     {countdown !== null && countdown > 0 && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/70">
                             <span className="text-9xl font-bold text-white animate-ping">{countdown}</span>
                         </div>
                     )}
                 </div>
-
                 {!isCapturing ? (
                     <div className="w-full max-w-md p-4 bg-white rounded-xl shadow-md flex flex-col items-center gap-4">
                         <div className="flex gap-2">
@@ -117,26 +99,13 @@ function CameraSession({ grid, onComplete }) {
                     <p className="text-xl h-24 flex items-center animate-pulse text-gray-700">Taking photo {currentPhotoIndex + 1} of {grid.photoCount}...</p>
                 )}
             </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 w-full">
+            <div className="lg:col-span-1 bg-white rounded-2xl shadow-lg p-6 w-full">
                 <h3 className="text-xl font-bold text-center mb-4">Photo Results</h3>
                 <div className="space-y-4">
                     {images.map((img, index) => (
-                        <div key={index} className={`relative aspect-video rounded-lg flex items-center justify-center transition-all duration-300
-                            ${ index === currentPhotoIndex && isCapturing ? 'border-4 border-pink-500' : 'border-2 border-gray-200'}
-                            ${ img ? 'bg-green-50' : 'bg-gray-100' }
-                        `}>
-                            {img ? (
-                                <img src={img} alt={`Capture ${index + 1}`} className="w-full h-full object-cover rounded-md" />
-                            ) : (
-                                <span className="text-gray-400">Photo Slot #{index + 1}</span>
-                            )}
-                            
-                            <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold
-                                ${ img ? 'bg-green-500' : 'bg-gray-400' }
-                            `}>
-                                {img ? <Check size={14} /> : index + 1}
-                            </div>
+                        <div key={index} className={`relative aspect-video rounded-lg flex items-center justify-center transition-all duration-300 ${index === currentPhotoIndex && isCapturing ? 'border-4 border-pink-500' : 'border-2 border-gray-200'} ${img ? 'bg-green-50' : 'bg-gray-100'}`}>
+                            {img ? (<img src={img} alt={`Capture ${index + 1}`} className="w-full h-full object-cover rounded-md" />) : (<span className="text-gray-400">Photo Slot #{index + 1}</span>)}
+                            <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold ${img ? 'bg-green-500' : 'bg-gray-400'}`}>{img ? <Check size={14} /> : index + 1}</div>
                         </div>
                     ))}
                 </div>
@@ -145,9 +114,6 @@ function CameraSession({ grid, onComplete }) {
     );
 }
 
-// ===================================
-// Manual Upload Session Mode
-// ===================================
 function UploadSession({ grid, onComplete }) {
     const [images, setImages] = useState(Array(grid.photoCount).fill(null));
     const fileInputRef = useRef(null);
@@ -164,10 +130,22 @@ function UploadSession({ grid, onComplete }) {
         if (file && activeIndex !== null) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const newImages = [...images];
-                newImages[activeIndex] = e.target.result;
-                setImages(newImages);
-                setActiveIndex(null);
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1280;
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    const newImages = [...images];
+                    newImages[activeIndex] = dataUrl;
+                    setImages(newImages);
+                    setActiveIndex(null);
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -184,31 +162,21 @@ function UploadSession({ grid, onComplete }) {
                         {img ? (
                             <div className="relative w-full h-full group">
                                 <img src={img} alt={`Upload ${index + 1}`} className="w-full h-full object-cover rounded-xl" />
-                                <button onClick={() => handleUploadClick(index)} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 rounded-xl flex items-center justify-center text-white transition-opacity">
-                                    <Upload className="w-8 h-8"/>
-                                </button>
+                                <button onClick={() => handleUploadClick(index)} className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 rounded-xl flex items-center justify-center text-white transition-opacity"><Upload className="w-8 h-8"/></button>
                             </div>
                         ) : (
-                            <button onClick={() => handleUploadClick(index)} className="w-full h-full bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-200">
-                                <Upload className="w-8 h-8 mb-2"/>
-                                <span>Slot #{index + 1}</span>
-                            </button>
+                            <button onClick={() => handleUploadClick(index)} className="w-full h-full bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-200"><Upload className="w-8 h-8 mb-2"/><span>Slot #{index + 1}</span></button>
                         )}
                     </div>
                 ))}
             </div>
              <div className="mt-8 text-center">
-                <button onClick={() => onComplete(images)} disabled={!isComplete} className="bg-pink-500 text-white font-bold py-4 px-10 rounded-xl disabled:bg-gray-300">
-                    {isComplete ? 'Continue to Preview' : 'Fill All Slots'}
-                </button>
+                <button onClick={() => onComplete(images)} disabled={!isComplete} className="bg-pink-500 text-white font-bold py-4 px-10 rounded-xl disabled:bg-gray-300">{isComplete ? 'Continue to Preview' : 'Fill All Slots'}</button>
             </div>
         </div>
     );
 }
 
-// ===================================
-// Main CameraView Component (Manager)
-// ===================================
 export default function CameraView({ grid, onComplete, mode }) {
     if (mode === 'camera') {
         return <CameraSession grid={grid} onComplete={onComplete} />;
@@ -219,4 +187,4 @@ export default function CameraView({ grid, onComplete, mode }) {
     }
 
     return <div className="text-center">Loading mode...</div>;
-}   
+}
