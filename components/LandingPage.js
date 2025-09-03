@@ -1,4 +1,3 @@
-// components/LandingPage.js
 'use client';
 
 import { Camera } from 'lucide-react';

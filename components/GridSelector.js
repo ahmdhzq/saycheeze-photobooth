@@ -1,6 +1,7 @@
 'use client';
+import { ArrowLeft } from "lucide-react";
 
-export default function GridSelector({ onGridSelect }) {
+export default function GridSelector({ onGridSelect, onBack }) {
     const grids = [
         { id: '3x1', label: '3x1', photoCount: 3 },
         { id: '2x2', label: '2x2', photoCount: 4 },
@@ -8,27 +9,23 @@ export default function GridSelector({ onGridSelect }) {
     ];
 
     return (
-        <div className="min-h-screen mt-8 flex items-center justify-center px-6">
+        <div className="min-h-screen flex items-center justify-center px-6 mt-6">
             <div className="w-full max-w-6xl">
-                
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-pink-100 rounded-full mb-6">
-                        <svg className="w-10 h-10 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                        Say Cheeze Photobooth
-                    </h1>
-                    <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
-                        Choose your favorite layout and start making memories!
+
+                <div className="flex justify-start mb-8">
+                    <button onClick={onBack} className="flex items-center gap-2 font-semibold text-gray-600 hover:text-gray-900 transition-colors">
+                        <ArrowLeft size={18} />
+                        Back
+                    </button>
+                </div>
+
+                <div className="text-center mb-10">
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                        Choose Your Polaroid Layout
+                    </h2>
+                    <p className="text-lg text-gray-600">
+                        Each layout has its own unique qualities. Which one best suits your style?
                     </p>
-                    <div className="bg-white rounded-full px-6 py-3 inline-block shadow-sm border border-gray-200">
-                        <p className="text-pink-600 font-medium">
-                            Ready for an unforgettable photo session? Let&apos;s get started!
-                        </p>
-                    </div>
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 md:p-12">
@@ -63,21 +60,21 @@ export default function GridSelector({ onGridSelect }) {
                                     <div className="mb-6">
                                         {grid.id === '3x1' && (
                                             <div className="flex gap-1.5 justify-center">
-                                                {[1,2,3].map(i => (
+                                                {[1, 2, 3].map(i => (
                                                     <div key={i} className="w-8 h-6 bg-gray-200 group-hover:bg-pink-200 rounded transition-colors duration-300"></div>
                                                 ))}
                                             </div>
                                         )}
                                         {grid.id === '2x2' && (
                                             <div className="grid grid-cols-2 gap-1.5 w-20 mx-auto">
-                                                {[1,2,3,4].map(i => (
+                                                {[1, 2, 3, 4].map(i => (
                                                     <div key={i} className="w-8 h-6 bg-gray-200 group-hover:bg-pink-200 rounded transition-colors duration-300"></div>
                                                 ))}
                                             </div>
                                         )}
                                         {grid.id === '3x2' && (
                                             <div className="grid grid-cols-3 gap-1.5 w-28 mx-auto">
-                                                {[1,2,3,4,5,6].map(i => (
+                                                {[1, 2, 3, 4, 5, 6].map(i => (
                                                     <div key={i} className="w-8 h-5 bg-gray-200 group-hover:bg-pink-200 rounded transition-colors duration-300"></div>
                                                 ))}
                                             </div>
