@@ -224,9 +224,6 @@ export default function PreviewPage({ images, grid }) {
                                             className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${selectedTheme.id === theme.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
                                         >
                                             <img src={theme.path} alt={theme.name} className="w-12 h-12 object-cover rounded-md border border-gray-200" />
-                                            <div className="text-left flex-grow">
-                                                <p className="font-medium text-gray-900">{theme.name}</p>
-                                            </div>
                                             {selectedTheme.id === theme.id && (
                                                 <div className="w-5 h-5 bg-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
                                                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
@@ -254,9 +251,6 @@ export default function PreviewPage({ images, grid }) {
                                             className={`w-full p-3 rounded-lg transition-all duration-200 flex items-center gap-3 border-2 ${selectedSticker?.id === sticker.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}
                                         >
                                             <img src={sticker.path} alt={sticker.name} className="w-12 h-12 object-contain rounded-md" />
-                                            <div className="text-left flex-grow">
-                                                <p className="font-medium text-gray-900">{sticker.name}</p>
-                                            </div>
                                         </button>
                                     ))}
                                 </div>

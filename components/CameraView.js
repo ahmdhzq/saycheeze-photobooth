@@ -20,7 +20,16 @@ function CameraSession({ grid, onComplete }) {
     useEffect(() => {
         const startCamera = async () => {
             try {
-                const streamData = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' }, audio: false });
+                // DIUBAH: Meminta resolusi portrait (tinggi) dari kamera
+                const streamData = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 720 }, 
+                        height: { ideal: 1280 }, 
+                        aspectRatio: 9/16, // Memaksa rasio portrait
+                        facingMode: 'user' 
+                    }, 
+                    audio: false 
+                });
                 if (videoRef.current) videoRef.current.srcObject = streamData;
             } catch (err) { console.error("Error accessing camera:", err); }
         };
@@ -76,10 +85,12 @@ function CameraSession({ grid, onComplete }) {
     };
 
     return (
-        <div className="w-full mt-14 grid lg:grid-cols-3 gap-8 items-start">
+        // DIUBAH: Layout diubah untuk mengakomodasi tampilan portrait
+        <div className="w-full grid lg:grid-cols-2 gap-8 items-start">
             
-            <div className="lg:col-span-2 flex flex-col items-center gap-6">
-                <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
+            <div className="flex flex-col items-center gap-6">
+                {/* DIUBAH: Kontainer kamera menjadi portrait */}
+                <div className="relative w-full max-w-md mx-auto aspect-[9/16] rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
                     <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
                     <canvas ref={canvasRef} style={{ display: 'none' }} />
                     
@@ -107,7 +118,7 @@ function CameraSession({ grid, onComplete }) {
                 )}
             </div>
 
-            <div className="lg:col-span-1 bg-white rounded-2xl shadow-lg p-6 w-full">
+            <div className="bg-white rounded-2xl shadow-lg p-6 w-full">
                 <h3 className="text-xl font-bold text-center mb-4">Photo Results</h3>
                 <div className="space-y-4">
                     {images.map((img, index) => (
