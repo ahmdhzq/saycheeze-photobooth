@@ -18,3 +18,24 @@ body {
   color: var(--foreground);
   font-family: Poppins, Arial, Helvetica, sans-serif;
 }
+
+/* Filter Overlay untuk Korean Pink */
+.filter-overlay-korean::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), rgba(255, 192, 203, 0.2));
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Filter Overlay untuk Analog Film */
+.filter-overlay-analog::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 70, 100, 0.1);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+

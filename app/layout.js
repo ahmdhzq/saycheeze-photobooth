@@ -1,8 +1,6 @@
-// app/layout.js
-
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Analytics } from '@vercel/analytics/react'; // <-- 1. Tambahkan import ini
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ['latin'] });
 

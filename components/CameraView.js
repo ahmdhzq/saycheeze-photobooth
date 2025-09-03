@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Camera, Upload, Check } from 'lucide-react';
+import { createFilter } from 'cc-gram';
 
+// ===================================
+// Automatic Camera Session Mode
+// ===================================
 function CameraSession({ grid, onComplete }) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -14,15 +18,33 @@ function CameraSession({ grid, onComplete }) {
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
     const [flashEffect, setFlashEffect] = useState(false);
 
+    // DIUBAH: Kita definisikan filter kita sendiri, tapi dengan nama yang cocok dengan cc-gram
+    const filters = [
+        { name: 'Normal', className: '', ccGramName: 'normal' },
+        { name: 'Clarendon', className: 'contrast-125 saturate-125', ccGramName: 'clarendon' },
+        { name: 'Gingham', className: 'brightness-105 hue-rotate-[-10deg]', ccGramName: 'gingham' },
+        { name: 'Reyes', className: 'sepia-[25%] brightness-110 contrast-[85%]', ccGramName: 'reyes' },
+        { name: 'Aden', className: 'hue-rotate-[-20deg] contrast-[90%] saturate-[85%] brightness-120', ccGramName: 'aden' },
+        { name: 'Inkwell', className: 'grayscale contrast-110 brightness-110', ccGramName: 'inkwell' },
+        { name: '1977', className: 'contrast-110 brightness-110 saturate-150', ccGramName: '1977' },
+    ];
+    
+    const [selectedFilter, setSelectedFilter] = useState(filters[0]);
+    
+    // Kita tetap butuh instance cc-gram untuk memproses gambar final
+    const ccGram = useRef(createFilter()).current;
+
     useEffect(() => {
+        const videoElement = videoRef.current;
+        let localStream = null;
         const startCamera = async () => {
             try {
-                const streamData = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' }, audio: false });
-                if (videoRef.current) videoRef.current.srcObject = streamData;
+                localStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' }, audio: false });
+                if (videoElement) videoElement.srcObject = localStream;
             } catch (err) { console.error("Error accessing camera:", err); }
         };
         startCamera();
-        return () => { if (videoRef.current && videoRef.current.srcObject) videoRef.current.srcObject.getTracks().forEach(track => track.stop()); };
+        return () => { if (localStream) localStream.getTracks().forEach(track => track.stop()); };
     }, []);
 
     useEffect(() => {
@@ -40,23 +62,36 @@ function CameraSession({ grid, onComplete }) {
         return () => clearTimeout(initialPause);
     }, [isCapturing, currentPhotoIndex, grid.photoCount, timerDuration]);
 
-    const takePicture = () => {
+    const takePicture = async () => {
         setFlashEffect(true);
         setTimeout(() => setFlashEffect(false), 200);
 
-        if (videoRef.current && canvasRef.current) {
+        if (videoRef.current && canvasRef.current && ccGram) {
             const video = videoRef.current;
             const canvas = canvasRef.current;
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
+            
             context.translate(canvas.width, 0);
             context.scale(-1, 1);
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            
+            const rawDataUrl = canvas.toDataURL('image/png');
+            let finalDataUrl = rawDataUrl;
+
+            if (selectedFilter.ccGramName !== 'normal') {
+                const tempImage = new Image();
+                tempImage.src = rawDataUrl;
+                tempImage.dataset.filter = selectedFilter.ccGramName;
+                await new Promise(resolve => tempImage.onload = resolve);
+                finalDataUrl = await ccGram.getDataURL(tempImage, { type: 'image/jpeg', quality: 0.9 });
+            }
+            
             const newImages = [...images];
-            newImages[currentPhotoIndex] = dataUrl;
+            newImages[currentPhotoIndex] = finalDataUrl;
             setImages(newImages);
+
             if (currentPhotoIndex >= grid.photoCount - 1) {
                 setIsCapturing(false);
                 onComplete(newImages);
@@ -73,12 +108,12 @@ function CameraSession({ grid, onComplete }) {
     };
 
     return (
-        <div className="w-full mt-14 grid lg:grid-cols-3 gap-8 items-start">
+        <div className="w-full grid lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2 flex flex-col items-center gap-6">
                 <div className="relative w-full max-w-xl mx-auto aspect-[4/3] rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
-                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
+                    <video ref={videoRef} autoPlay playsInline muted className={`w-full h-full object-cover transform -scale-x-100 ${selectedFilter.className}`} />
                     <canvas ref={canvasRef} style={{ display: 'none' }} />
-                    <div className={`absolute inset-0 bg-white transition-opacity duration-100 ${flashEffect ? 'opacity-80' : 'opacity-0'}`}></div>
+                    <div className={`absolute inset-0 bg-white transition-opacity duration-100 ${flashEffect ? 'opacity-80' : 'opacity-0'} pointer-events-none`}></div>
                     {countdown !== null && countdown > 0 && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/70">
                             <span className="text-9xl font-bold text-white animate-ping">{countdown}</span>
@@ -87,11 +122,27 @@ function CameraSession({ grid, onComplete }) {
                 </div>
                 {!isCapturing ? (
                     <div className="w-full max-w-md p-4 bg-white rounded-xl shadow-md flex flex-col items-center gap-4">
-                        <div className="flex gap-2">
+                        <div className="w-full">
+                            <span className="font-semibold text-sm text-gray-600">Filter:</span>
+                            <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
+                                {filters.map(filter => (
+                                    <button 
+                                        key={filter.name} 
+                                        onClick={() => setSelectedFilter(filter)} 
+                                        className={`px-3 py-1.5 rounded-lg font-semibold text-sm whitespace-nowrap capitalize ${selectedFilter.name === filter.name ? 'bg-pink-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+                                    >
+                                        {filter.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 w-full border-t border-gray-200 pt-4">
                             <span className="font-semibold">Timer:</span>
-                            {[3, 5, 10].map(duration => (
-                                <button key={duration} onClick={() => setTimerDuration(duration)} className={`px-4 py-2 rounded-lg font-semibold ${timerDuration === duration ? 'bg-pink-500 text-white' : 'bg-gray-100'}`}>{duration}s</button>
-                            ))}
+                            <div className="flex gap-2">
+                                {[3, 5, 10].map(duration => (
+                                    <button key={duration} onClick={() => setTimerDuration(duration)} className={`px-4 py-2 rounded-lg font-semibold ${timerDuration === duration ? 'bg-pink-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{duration}s</button>
+                                ))}
+                            </div>
                         </div>
                         <button onClick={handleStartSession} className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-lg">Start Camera Session</button>
                     </div>
@@ -113,7 +164,6 @@ function CameraSession({ grid, onComplete }) {
         </div>
     );
 }
-
 function UploadSession({ grid, onComplete }) {
     const [images, setImages] = useState(Array(grid.photoCount).fill(null));
     const fileInputRef = useRef(null);
@@ -139,7 +189,7 @@ function UploadSession({ grid, onComplete }) {
                     canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
                     const newImages = [...images];
                     newImages[activeIndex] = dataUrl;
                     setImages(newImages);
