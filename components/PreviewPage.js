@@ -9,21 +9,21 @@ const stickerConfig = {
         { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/2x2/stiker/stiker-2.svg', iconPath: '/assets/stikers/2x2/icons/icons-2.png' },
         { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/2x2/stiker/stiker-3.svg', iconPath: '/assets/stikers/2x2/icons/icons-3.png' },
         { id: 'stiker-4', name: 'Pentol', path: '/assets/stikers/2x2/stiker/stiker-4.svg', iconPath: '/assets/stikers/2x2/icons/icons-4.png' },
-        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/2x2/stiker/stiker-4.svg', iconPath: '/assets/stikers/2x2/icons/icons-5.svg' },
+        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/2x2/stiker/stiker-5.svg', iconPath: '/assets/stikers/2x2/icons/icons-5.svg' },
     ],
     '3x1': [
         { id: 'stiker-1', name: 'Nailong', path: '/assets/stikers/3x1/stiker/stiker-1.svg', iconPath: '/assets/stikers/3x1/icons/icons-1.png' },
         { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/3x1/stiker/stiker-2.svg', iconPath: '/assets/stikers/3x1/icons/icons-2.png' },
         { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/3x1/stiker/stiker-3.svg', iconPath: '/assets/stikers/3x1/icons/icons-3.png' },
         { id: 'stiker-4', name: 'Pentol', path: '/assets/stikers/3x1/stiker/stiker-4.svg', iconPath: '/assets/stikers/3x1/icons/icons-4.png' },
-        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/3x1/stiker/stiker-4.svg', iconPath: '/assets/stikers/3x1/icons/icons-5.svg' },
+        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/3x1/stiker/stiker-5.svg', iconPath: '/assets/stikers/3x1/icons/icons-5.svg' },
     ],
     '3x2': [
         { id: 'stiker-1', name: 'Nailong', path: '/assets/stikers/3x2/stiker/stiker-1.svg', iconPath: '/assets/stikers/3x2/icons/icons-1.png' },
         { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/3x2/stiker/stiker-2.svg', iconPath: '/assets/stikers/3x2/icons/icons-2.png' },
         { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/3x2/stiker/stiker-3.svg', iconPath: '/assets/stikers/3x2/icons/icons-3.png' },
         { id: 'stiker-4', name: 'Pentol', path: '/assets/stikers/3x2/stiker/stiker-4.svg', iconPath: '/assets/stikers/3x2/icons/icons-4.png' },
-        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/3x2/stiker/stiker-4.svg', iconPath: '/assets/stikers/3x2/icons/icons-5.svg' },
+        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/3x2/stiker/stiker-5.svg', iconPath: '/assets/stikers/3x2/icons/icons-5.svg' },
     ]
 };
 
