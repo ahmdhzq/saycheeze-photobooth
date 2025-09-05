@@ -8,16 +8,22 @@ const stickerConfig = {
         { id: 'stiker-1', name: 'Nailong', path: '/assets/stikers/2x2/stiker/stiker-1.svg', iconPath: '/assets/stikers/2x2/icons/icons-1.png' },
         { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/2x2/stiker/stiker-2.svg', iconPath: '/assets/stikers/2x2/icons/icons-2.png' },
         { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/2x2/stiker/stiker-3.svg', iconPath: '/assets/stikers/2x2/icons/icons-3.png' },
+        { id: 'stiker-4', name: 'Pentol', path: '/assets/stikers/2x2/stiker/stiker-4.svg', iconPath: '/assets/stikers/2x2/icons/icons-4.png' },
+        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/2x2/stiker/stiker-4.svg', iconPath: '/assets/stikers/2x2/icons/icons-5.svg' },
     ],
     '3x1': [
         { id: 'stiker-1', name: 'Nailong', path: '/assets/stikers/3x1/stiker/stiker-1.svg', iconPath: '/assets/stikers/3x1/icons/icons-1.png' },
         { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/3x1/stiker/stiker-2.svg', iconPath: '/assets/stikers/3x1/icons/icons-2.png' },
         { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/3x1/stiker/stiker-3.svg', iconPath: '/assets/stikers/3x1/icons/icons-3.png' },
+        { id: 'stiker-4', name: 'Pentol', path: '/assets/stikers/3x1/stiker/stiker-4.svg', iconPath: '/assets/stikers/3x1/icons/icons-4.png' },
+        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/3x1/stiker/stiker-4.svg', iconPath: '/assets/stikers/3x1/icons/icons-5.svg' },
     ],
     '3x2': [
         { id: 'stiker-1', name: 'Nailong', path: '/assets/stikers/3x2/stiker/stiker-1.svg', iconPath: '/assets/stikers/3x2/icons/icons-1.png' },
         { id: 'stiker-2', name: 'Stars', path: '/assets/stikers/3x2/stiker/stiker-2.svg', iconPath: '/assets/stikers/3x2/icons/icons-2.png' },
         { id: 'stiker-3', name: 'Abe', path: '/assets/stikers/3x2/stiker/stiker-3.svg', iconPath: '/assets/stikers/3x2/icons/icons-3.png' },
+        { id: 'stiker-4', name: 'Pentol', path: '/assets/stikers/3x2/stiker/stiker-4.svg', iconPath: '/assets/stikers/3x2/icons/icons-4.png' },
+        { id: 'stiker-5', name: 'Capybara', path: '/assets/stikers/3x2/stiker/stiker-4.svg', iconPath: '/assets/stikers/3x2/icons/icons-5.svg' },
     ]
 };
 
@@ -63,7 +69,7 @@ const frameLayouts = {
             { x: 85, y: 632, width: 830, height: 540, borderRadius: 30 },
             { x: 85, y: 1205, width: 830, height: 547, borderRadius: 30 },
         ],
-        logo: { x: 390, y: 1760, width: 250, height: 120 },
+        logo: { x: 390, y: 1770, width: 250, height: 120 },
         timestamp: { x: 510, y: 1910, fontSize: 25 },
     },
     '3x2': {
@@ -156,7 +162,6 @@ export default function PreviewPage({ images, grid }) {
                 canvas.height = layout.canvasSize.height;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Mulai menggambar
                 ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
                 userPhotos.forEach((photo, index) => {

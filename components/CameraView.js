@@ -4,9 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Camera, Upload, Check, AlertCircle, ArrowLeft } from 'lucide-react';
 import { createFilter } from 'cc-gram';
 
-// ===================================
-// Automatic Camera Session Mode
-// ===================================
 function CameraSession({ grid, onComplete, onBack }) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -104,14 +101,14 @@ function CameraSession({ grid, onComplete, onBack }) {
     };
 
     return (
-        <div className='w-full mt-16'>
+        <div className='w-full'>
             <div className="flex justify-start mb-4">
                 <button onClick={onBack} className="flex items-center gap-2 font-semibold text-gray-600 hover:text-gray-900 transition-colors">
                     <ArrowLeft size={18} />
                     Back
                 </button>
             </div>
-            <div className="grid lg:grid-cols-3 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 flex flex-col items-center gap-6">
                     <div className="relative w-full max-w-xl mx-auto aspect-[4/3] rounded-2xl overflow-hidden bg-black shadow-lg border-4 border-white">
                         <video ref={videoRef} autoPlay playsInline muted className={`w-full h-full object-cover transform -scale-x-100 ${selectedFilter.className}`} />
@@ -169,22 +166,17 @@ function CameraSession({ grid, onComplete, onBack }) {
     );
 }
 
-// ===================================
-// Manual Upload Session Mode
-// ===================================
 function UploadSession({ grid, onComplete, onBack }) {
     const [images, setImages] = useState(Array(grid.photoCount).fill(null));
     const fileInputRef = useRef(null);
     const [activeIndex, setActiveIndex] = useState(null);
-
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-
     const isComplete = images.every(img => img !== null);
 
     const handleUploadClick = (index) => {
-        setErrorMessage(''); // Hapus pesan error lama
+        setErrorMessage('');
         setActiveIndex(index);
         fileInputRef.current?.click();
     };
@@ -192,31 +184,23 @@ function UploadSession({ grid, onComplete, onBack }) {
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (!file || activeIndex === null) return;
-
-        // 1. Validasi Ukuran File (maks 1 MB)
         if (file.size > 2 * 1024 * 1024) {
             setErrorMessage('File size is too large! Max 2 MB.');
-            event.target.value = null; // Reset input
+            event.target.value = null;
             return;
         }
-
         setIsProcessing(true);
         setUploadProgress(0);
-
         const reader = new FileReader();
-
-        // 2. Event listener untuk progress bar
         reader.onprogress = (e) => {
             if (e.lengthComputable) {
                 const percentLoaded = Math.round((e.loaded / e.total) * 100);
                 setUploadProgress(percentLoaded);
             }
         };
-
         reader.onloadend = () => {
-            setIsProcessing(false); // Sembunyikan progress bar setelah selesai
+            setIsProcessing(false);
         };
-
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
@@ -228,7 +212,6 @@ function UploadSession({ grid, onComplete, onBack }) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-
                 const newImages = [...images];
                 newImages[activeIndex] = dataUrl;
                 setImages(newImages);
@@ -241,27 +224,22 @@ function UploadSession({ grid, onComplete, onBack }) {
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
-            {/* Tombol Back ditempatkan di sini */}
+        <div className="w-full">
             <div className="flex justify-start mb-4">
                 <button onClick={onBack} className="flex items-center gap-2 font-semibold text-gray-600 hover:text-gray-900 transition-colors">
                     <ArrowLeft size={18} />
                     Back
                 </button>
             </div>
-            <div className="bg-white p-6 rounded-2xl shadow-lg">
+            <div className="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
                 <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/png, image/jpeg" onChange={handleFileChange} />
                 <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Upload Your Photos ({grid.label})</h2>
-
-                {/* Tampilkan pesan error jika ada */}
                 {errorMessage && (
                     <div className="my-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg flex items-center gap-2">
                         <AlertCircle className="w-5 h-5" />
                         <span>{errorMessage}</span>
                     </div>
                 )}
-
-                {/* Tampilkan progress bar jika sedang memproses */}
                 {isProcessing && (
                     <div className="my-4">
                         <p className="text-sm text-center text-gray-600 mb-1">Processing... {uploadProgress}%</p>
@@ -270,7 +248,6 @@ function UploadSession({ grid, onComplete, onBack }) {
                         </div>
                     </div>
                 )}
-
                 <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 mt-4">
                     {images.map((img, index) => (
                         <div key={index} className="aspect-square">
@@ -300,15 +277,12 @@ function UploadSession({ grid, onComplete, onBack }) {
     );
 }
 
-
 export default function CameraView({ grid, onComplete, mode, onBack }) {
     if (mode === 'camera') {
         return <CameraSession grid={grid} onComplete={onComplete} onBack={onBack} />;
     }
-
     if (mode === 'upload') {
         return <UploadSession grid={grid} onComplete={onComplete} onBack={onBack} />;
     }
-
     return <div className="text-center">Loading mode...</div>;
 }
